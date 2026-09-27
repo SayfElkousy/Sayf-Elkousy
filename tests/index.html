@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Route tests — Sayf Elkousy</title>
+  <style>
+    body { background: #030507; color: #f1f4f6; font: 13px/1.5 ui-monospace, Menlo, monospace; margin: 0; padding: 16px; }
+    iframe { width: 1280px; height: 800px; border: 1px solid #333; }
+    .pass { color: #6b93ff; } .fail { color: #ff304f; }
+  </style>
+</head>
+<body>
+  <!--
+    Open http://localhost:8000/tests/ in a browser to run.
+    Drives the real site in an iframe: direct loads, the /work → /#work
+    redirect, Home ↔ Work in-page scrolling (no transition), link clicks,
+    Back/Forward, rapid-click stacking, trailing slashes, 404s, the Contact
+    sidebar, the PSO visual's lifecycle, and uncaught errors.
+    ?rm=1 runs the same suite with reduced motion emulated by the page.
+  -->
+  <pre id="out">running…</pre>
+  <iframe id="f" title="site under test"></iframe>
+  <script type="module">
+    const out = document.getElementById('out');
+    const f = document.getElementById('f');
+    const lines = [];
+    let failures = 0;
+    const log = (ok, msg) => { if (!ok) failures++; lines.push(`${ok ? 'PASS' : 'FAIL'}  ${msg}`); };
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const W = () => f.contentWindow;
+    const D = () => f.contentDocument;
+    const errors = [];
+
+    function load(url) {
+      return new Promise((res) => {
+        f.onload = async () => {
+          W().addEventListener('error', (e) => errors.push(`${url}: ${e.message}`));
+          W().addEventListener('unhandledrejection', (e) => errors.push(`${url}: ${e.reason}`));
+          await sleep(900);
+          res();
+        };
+        f.src = url;
+      });
+    }
+    // Pages are identified by <body data-page>, not by headline copy (which will change).
+    const h1 = () => D().body.dataset.page || '';
+    const current = () => D().querySelector('.station a[aria-current]')?.getAttribute('href');
+    const path = () => W().location.pathname;
+    const clickStation = (href) => D().querySelector(`.station a[href="${href}"]`).click();
+    const settle = async () => { for (let i = 0; i < 60; i++) { await sleep(100); if (!W().__sayf.router.busy) return; } };
+
+    const expectPage = (name, href, label) => {
+      log(path() === href, `${label}: url is ${href} (got ${path()})`);
+      log(h1().includes(name), `${label}: page content is "${name}" (h1="${h1().slice(0, 40)}")`);
+      log(current() === href, `${label}: nav marks ${href} current (got ${current()})`);
+    };
+
+    try {
+      // 1. Direct loads
+      for (const [href, name] of [['/', 'home'], ['/about', 'about'], ['/play', 'play']]) {
+        await load(href);
+        log(path() === href, `direct ${href}: url`);
+        log(h1().includes(name), `direct ${href}: content (page="${h1()}")`);
+      }
+
+      // 2. Old /work redirects to /#work and lands on the section
+      await load('/work'); await sleep(600);
+      log(path() === '/' && W().location.hash === '#work', `/work redirects to /#work (got ${path()}${W().location.hash})`);
+      log(h1() === 'home', `/work renders home (page="${h1()}")`);
+      const workTop = () => D().getElementById('work').getBoundingClientRect().top;
+      log(Math.abs(workTop() - 88) < 40, `/#work lands on the section (top=${Math.round(workTop())})`);
+      log(current() === '/#work', `/#work lights WORK (got ${current()})`);
+      await load('/work/');
+      log(path() === '/' && W().location.hash === '#work', `/work/ redirects too (got ${path()}${W().location.hash})`);
+
+      // 3. Trailing slash is canonicalised without a new history entry
+      await load('/about/');
+      log(path() === '/about', `trailing slash → /about (got ${path()})`);
+
+      // 4. Unknown path
+      await load('/does-not-exist');
+      log(h1() === 'lost', `404 route renders lost page (page="${h1()}")`);
+
+      // 5. Home ↔ Work: an in-page scroll, never the route transition
+      await load('/');
+      let runs = 0;
+      const t = W().__sayf.transition;
+      const orig = t.run.bind(t);
+      t.run = (...a) => { runs++; return orig(...a); };
+      const len = W().history.length;
+      clickStation('/#work'); await sleep(1800);
+      log(runs === 0, `HOME → WORK ran no route transition (${runs})`);
+      log(path() === '/' && W().location.hash === '#work', `WORK → url /#work (got ${path()}${W().location.hash})`);
+      log(Math.abs(workTop() - 88) < 40, `WORK scrolled to #work (top=${Math.round(workTop())})`);
+      log(current() === '/#work', `nav lights WORK after scrolling (got ${current()})`);
+      log(W().history.length === len, 'section jump adds no history entry');
+      clickStation('/'); await sleep(1800);
+      log(runs === 0, `WORK → HOME ran no route transition (${runs})`);
+      log(W().scrollY < 4 && W().location.hash === '', `HOME → top of / (y=${W().scrollY}, hash="${W().location.hash}")`);
+      log(current() === '/', `nav lights HOME at the top (got ${current()})`);
+      W().scrollTo(0, D().getElementById('work').offsetTop); await sleep(500);
+      log(current() === '/#work', `scrolling into #work lights WORK (got ${current()})`);
+      W().scrollTo(0, 0); await sleep(500);
+      log(current() === '/', `scrolling back up lights HOME (got ${current()})`);
+
+      // 6. Click navigation across pages
+      clickStation('/about'); await settle();
+      expectPage('about', '/about', 'click about');
+      log(runs === 1, `HOME → ABOUT used the route transition (${runs})`);
+      clickStation('/#work'); await settle(); await sleep(1500);
+      log(path() === '/' && W().location.hash === '#work' && h1() === 'home', `ABOUT → WORK lands on / #work (got ${path()}${W().location.hash}, ${h1()})`);
+      log(Math.abs(workTop() - 88) < 40, `ABOUT → WORK scrolled to the section (top=${Math.round(workTop())})`);
+      log(current() === '/#work', `ABOUT → WORK lights WORK (got ${current()})`);
+      clickStation('/play'); await settle();
+      expectPage('play', '/play', 'click play');
+
+      // 7. Back / Forward
+      W().history.back(); await sleep(200); await settle(); await sleep(400);
+      log(path() === '/' && h1() === 'home', `back → / (got ${path()}, ${h1()})`);
+      log(Math.abs(workTop() - 88) < 60, `back restores the #work scroll (top=${Math.round(workTop())})`);
+      W().history.back(); await sleep(200); await settle();
+      expectPage('about', '/about', 'back again');
+      W().history.forward(); await sleep(200); await settle();
+      log(path() === '/' && h1() === 'home', `forward → / (got ${path()}, ${h1()})`);
+      W().history.forward(); await sleep(200); await settle();
+      expectPage('play', '/play', 'forward again');
+
+      // 8. Rapid clicks do not stack: count overlay runs
+      runs = 0; // same document since step 5: the counter is still wrapped around transition.run
+      clickStation('/about'); await sleep(30);
+      clickStation('/play'); await sleep(30);
+      clickStation('/about'); await sleep(30);
+      clickStation('/play');
+      await settle();
+      expectPage('play', '/play', 'rapid clicks');
+      log(runs <= 2, `rapid clicks ran ${runs} transition(s) (≤ 2 expected)`);
+      const overlayShown = D().querySelector('#route-transition').classList.contains('is-active');
+      log(!overlayShown, 'overlay is cleared after navigation');
+
+      // 9. Back during a transition
+      clickStation('/about'); await sleep(60);
+      W().history.back(); await settle();
+      log(path() === '/play' && h1().includes('play'), `back mid-transition lands on /play (got ${path()}, h1=${h1()})`);
+
+      // 10. Focus moves to main after navigation; title updates
+      clickStation('/about'); await settle();
+      log(D().activeElement?.id === 'main', `focus moved to main (got ${D().activeElement?.tagName}#${D().activeElement?.id})`);
+      log(D().title.startsWith('About'), `document title updated ("${D().title}")`);
+
+      // 11. Contact: on the left, labelled Contact, opens the sidebar (from the left)
+      const key = (k) => D().dispatchEvent(new (W().KeyboardEvent)('keydown', { key: k, bubbles: true }));
+      const trigger = D().querySelector('.nav-contact');
+      log(!!trigger && trigger.textContent.trim() === 'Contact', `trigger reads "Contact" (got "${trigger?.textContent.trim()}")`);
+      log(!/menu/i.test(D().getElementById('site-nav').textContent), 'no "Menu" label left in the nav');
+      const tr = trigger.getBoundingClientRect();
+      log(tr.right < W().innerWidth / 2, `Contact sits on the left (x=${Math.round(tr.left)}–${Math.round(tr.right)})`);
+      log(tr.height >= 44 && tr.width >= 120, `Contact is a generous target (${Math.round(tr.width)}×${Math.round(tr.height)})`);
+      trigger.focus(); trigger.click(); await sleep(450);
+      const sb = W().__sayf.sidebar;
+      log(sb.isOpen && !D().querySelector('.sb').hidden, 'sidebar opens from Contact');
+      log(Math.round(D().querySelector('.sb__panel').getBoundingClientRect().left) === 0, 'sidebar panel is on the left');
+      log(trigger.getAttribute('aria-expanded') === 'true', 'Contact has aria-expanded=true');
+      log(D().getElementById('main').inert, 'page behind the sidebar is inert');
+      log(D().documentElement.classList.contains('sb-open'), 'background scroll is locked');
+      log(D().querySelectorAll('.sb__contact[href]').length >= 2, 'sidebar lists contact links');
+      key('Escape'); await sleep(400);
+      log(!sb.isOpen, 'Escape closes the sidebar');
+      log(D().activeElement === trigger, 'focus returns to Contact');
+      trigger.click(); await sleep(400);
+      D().querySelector('.sb__scrim').click(); await sleep(400);
+      log(!sb.isOpen, 'clicking outside closes the sidebar');
+      trigger.click(); await sleep(400);
+      D().querySelector('.sb__nav a[href="/#work"]').click(); await settle(); await sleep(1500);
+      log(!sb.isOpen && path() === '/' && Math.abs(workTop() - 88) < 40, `sidebar WORK link goes to /#work (got ${path()}${W().location.hash}, top=${Math.round(workTop())})`);
+
+      // 12. PSO visual: runs on screen, pauses off screen, stops on unmount
+      await load('/?fresh=1#work'); await sleep(800);
+      const canvas = D().querySelector('.pso__canvas');
+      const iter = () => D().querySelector('.pso__iter').textContent;
+      const i0 = iter(); await sleep(600);
+      if (W().matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        log(!!canvas && iter() === i0, `reduced motion: PSO is a still frame (${i0} → ${iter()})`);
+      } else {
+        log(!!canvas && iter() !== i0, `PSO animates while visible (${i0} → ${iter()})`);
+      }
+      W().scrollTo(0, 0); await sleep(700);
+      const i1 = iter(); await sleep(600);
+      log(iter() === i1, `PSO pauses off screen (${i1} → ${iter()})`);
+      log(D().querySelector('.ach__desc').textContent === 'Built a Particle Swarm Optimization simulation that models 100+ particles converging on a solution, demonstrating PSO as a heuristic, derivative-free approach to quantum engineering problems not suited to calculus-based optimization.', 'PSO description is exact');
+      log(D().querySelectorAll('.ach').length >= 1 && getComputedStyle(D().querySelector('.ach')).borderTopLeftRadius !== '0px', 'achievement is a rounded card');
+      log(!/what happens|when technology|everything it touches|common thread|still figuring|pick a direction/i.test(D().getElementById('main').innerText), 'old Work intro + intersections copy is gone');
+
+      // 13. No placeholders reach visitors, on any page
+      for (const href of ['/', '/about', '/play']) {
+        await load(href);
+        const txt = D().getElementById('main').innerText;
+        log(!/\[[^\]]*\]/.test(txt) && !D().querySelector('.ph'), `${href}: no [placeholder] content visible`);
+      }
+
+      // 14. Play media + travel map (still on /play)
+      const v = D().querySelector('video.play-open__video');
+      log(!!v && v.muted && v.loop && v.playsInline, 'Play hero video is muted, looping, inline');
+      await sleep(800);
+      log(v && v.readyState >= 1 && !v.error, `hero video loads (readyState ${v?.readyState})`);
+      const img = D().querySelector('.shot img');
+      img?.scrollIntoView(); await sleep(1500);
+      log(img && img.complete && img.naturalWidth > 0, 'Play photo loads');
+      const { travelLocations } = await W().eval("import('/assets/js/data/travel.js')");
+      log(D().querySelectorAll('.tmap__pin').length === travelLocations.length, `one map pin per travel entry (${travelLocations.length})`);
+      const pin = D().querySelector('.tmap__pin:not(.is-out)');
+      pin.focus({ focusVisible: true }); pin.click(); await sleep(250);
+      log(!D().querySelector('.tmap__tip').hidden, 'activating a pin shows its card');
+    } catch (e) {
+      log(false, 'harness crashed: ' + e.message);
+    }
+    log(errors.length === 0, `no uncaught errors${errors.length ? ': ' + errors.join(' | ') : ''}`);
+    out.textContent = `${failures ? failures + ' FAILED' : 'ALL PASSED'}\n\n` + lines.join('\n');
+    document.title = failures ? 'FAIL' : 'PASS';
+  </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+/* ==========================================================================
+   SIDEBAR — contact + site index. Slides in from the left (where its
+   Contact trigger sits), over a dimmed page.
+   The page list reuses the navigation's "line": a vertical rule with
+   diamond stations, the current page lit blue.
+   ========================================================================== */
+
+.sb {
+  position: fixed;
+  inset: 0;
+  z-index: 75; /* above nav (60), below the route transition (90) */
+}
+.sb[hidden] { display: none; }
+
+.sb__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(1, 2, 4, 0.62);
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out);
+}
+
+.sb__panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: clamp(320px, 28vw, 400px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  padding: calc(env(safe-area-inset-top, 0px) + 22px) clamp(1.5rem, 2.4vw, 2.5rem) calc(env(safe-area-inset-bottom, 0px) + 24px) var(--gutter);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-1);
+  border-right: 1px solid var(--line-2);
+  box-shadow: 40px 0 80px -40px rgba(0, 0, 0, 0.9);
+  transform: translateX(-100%);
+  transition: transform 380ms var(--ease-out);
+}
+/* a single blue hairline down the inner edge — the accent, rationed */
+.sb__panel::before {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: 0;
+  width: 1px;
+  height: 120px;
+  background: var(--blue);
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+.sb.is-open .sb__scrim { opacity: 1; }
+.sb.is-open .sb__panel { transform: none; }
+
+/* Items settle in just after the panel */
+.sb__section, .sb__sub, .sb__foot {
+  opacity: 0;
+  transform: translateX(-12px);
+  transition: opacity 300ms var(--ease-out), transform 380ms var(--ease-out);
+}
+.sb.is-open .sb__sub { opacity: 1; transform: none; transition-delay: 60ms; }
+.sb.is-open .sb__section { opacity: 1; transform: none; transition-delay: 100ms; }
+.sb.is-open .sb__section + .sb__section { transition-delay: 150ms; }
+.sb.is-open .sb__foot { opacity: 1; transform: none; transition-delay: 200ms; }
+
+/* Reduced motion: fade only */
+.sb.is-reduced .sb__panel { transform: none; opacity: 0; transition: opacity 160ms linear; }
+.sb.is-reduced.is-open .sb__panel { opacity: 1; }
+.sb.is-reduced .sb__section, .sb.is-reduced .sb__sub, .sb.is-reduced .sb__foot { transform: none; transition: none; opacity: 1; }
+
+html.sb-open { overflow: hidden; }
+html.sb-open body { padding-right: var(--sbw, 0px); }
+
+/* ---------- Head ---------- */
+.sb__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.sb__name { display: grid; gap: 0.35rem; max-width: none; }
+.sb__en {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sb__ar { justify-self: start; font-size: 1.3rem; line-height: 1.2; color: var(--ink-2); }
+.sb__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  margin-top: -10px;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+  transition: border-color var(--t-micro), color var(--t-micro);
+}
+.sb__close span { font-size: 1.1rem; line-height: 1; }
+.sb__close:hover { border-color: var(--blue); color: var(--blue-text); }
+.sb__sub { margin-top: calc(-1 * var(--s-4)); color: var(--ink-2); font-size: var(--fs-small); }
+
+.sb__head {
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-3);
+}
+
+/* ---------- Pages: a vertical line with stations ---------- */
+.sb__nav { position: relative; padding-left: 22px; }
+.sb__nav::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1.3rem;
+  bottom: 1.3rem;
+  width: 1px;
+  background: var(--line-2);
+}
+.sb__nav a {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  min-height: 46px;
+  padding-block: 0.3rem;
+  color: var(--ink-2);
+  transition: color var(--t-micro);
+}
+.sb__nav a::before {
+  content: "";
+  position: absolute;
+  left: -22px;
+  top: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--ink-3);
+  background: var(--bg-1);
+  transform: rotate(45deg);
+  transition: background var(--t-micro), border-color var(--t-micro), box-shadow 300ms var(--ease-out);
+}
+.sb__idx { color: var(--ink-3); }
+.sb__label {
+  font-size: clamp(1.7rem, 1.3rem + 1.1vw, 2.2rem);
+  line-height: 1;
+  transition: letter-spacing 300ms var(--ease-out);
+}
+.sb__nav a:hover, .sb__nav a:focus-visible { color: var(--ink); }
+.sb__nav a:hover .sb__label { letter-spacing: 0.02em; }
+.sb__nav a:hover::before { border-color: var(--blue-text); }
+.sb__nav a[aria-current="page"] { color: var(--ink); }
+.sb__nav a[aria-current="page"] .sb__idx { color: var(--blue-text); }
+.sb__nav a[aria-current="page"]::before {
+  background: var(--blue);
+  border-color: var(--blue);
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+/* ---------- Contact ---------- */
+.sb__contact {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 52px;
+  border-bottom: 1px solid var(--line);
+  transition: color var(--t-micro);
+}
+.sb__contact .mono { color: var(--ink-3); }
+.sb__value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-small); }
+.sb__arrow { color: var(--ink-3); transition: transform var(--t-micro) var(--ease-out), color var(--t-micro); }
+.sb__contact:hover, .sb__contact:focus-visible { color: var(--blue-text); }
+.sb__contact:hover .sb__arrow { color: var(--blue-text); transform: translate(2px, -2px); }
+
+.sb__foot { margin-top: auto; color: var(--ink-3); }
+
+@media (max-width: 760px) {
+  .sb__panel { width: min(88vw, 400px); gap: var(--s-5); }
+}

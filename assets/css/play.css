@@ -1,0 +1,457 @@
+/* ==========================================================================
+   PLAY — the life away from the screen. The grid loosens; the discipline stays.
+   ========================================================================== */
+
+body[data-page="play"] .grid-lines { opacity: 0.25; }
+
+/* ---------- Photo ---------- */
+.shot {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  transform: rotate(var(--r, 0deg));
+  transition: transform 380ms var(--ease-out), z-index 0s;
+}
+.shot__img {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-2);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.9);
+}
+.shot__img img { width: 100%; height: 100%; object-fit: cover; }
+.shot__meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  padding: 1.6rem 0.8rem 0.7rem;
+  background: linear-gradient(to top, rgba(3, 5, 7, 0.9), rgba(3, 5, 7, 0));
+  color: var(--ink);
+  font-size: 0.6rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+}
+.shot__cap { flex-basis: 100%; color: var(--ink-2); text-transform: none; letter-spacing: 0.04em; }
+.shot__credit { color: var(--ink-2); }
+.shot:hover, .shot:focus-visible { z-index: 5; transform: rotate(0deg) scale(1.012); }
+.shot:hover .shot__meta, .shot:focus-visible .shot__meta { opacity: 1; transform: none; }
+@media (hover: none) {
+  .shot__meta { opacity: 1; transform: none; }
+}
+
+/* ---------- Opening: video inside pitch lines, the word, one line ----------
+   The video (~72% of the content width) sits where the centre of a pitch
+   would be; the stage around it is the rest of the pitch. */
+.play-open {
+  position: relative;
+  padding: calc(var(--nav-h) + var(--s-6)) var(--gutter) var(--s-7);
+  max-width: var(--max);
+  margin-inline: auto;
+}
+.play-open__stage {
+  --side: 14%;            /* width of each penalty-area zone */
+  --pad: clamp(40px, 5vw, 64px);  /* touchline → video */
+  --pitch-line: rgba(157, 167, 179, 0.24);
+  position: relative;
+  padding: var(--pad) var(--side);
+}
+.play-open__hero { position: relative; z-index: 2; }
+.play-open__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--bg-2);
+}
+.play-open__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 45%;
+  /* sit it in the dark palette without changing what it is */
+  filter: brightness(0.9) contrast(1.05) saturate(0.9);
+}
+.play-open__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(3, 5, 7, 0.55) 0%, rgba(3, 5, 7, 0) 38%),
+    linear-gradient(to bottom, rgba(3, 5, 7, 0.25) 0%, rgba(3, 5, 7, 0) 18%);
+}
+.play-open__hero.is-missing .play-open__video { visibility: hidden; }
+
+.play-open__toggle {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 36px;
+  padding: 0 0.8rem;
+  background: rgba(3, 5, 7, 0.55);
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  font-size: 0.6rem;
+  transition: color var(--t-micro), border-color var(--t-micro);
+}
+.play-open__toggle:hover { color: var(--ink); border-color: var(--line-3); }
+/* pause glyph (two bars) ↔ play glyph (triangle) */
+.play-open__toggle-icon {
+  width: 8px;
+  height: 9px;
+  border-left: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+}
+.play-open__toggle.is-paused .play-open__toggle-icon {
+  width: 0;
+  height: 0;
+  border-right: 0;
+  border-left: 8px solid currentColor;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.play-open__title {
+  position: relative;
+  z-index: 6;
+  margin-top: calc(-0.52 * var(--fs-mega));
+  margin-left: calc(-0.07em - var(--gutter));
+  font-size: var(--fs-mega);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  color: #f1f4f6;
+}
+.play-open__lede {
+  max-width: 34ch;
+  margin-top: var(--s-4);
+  margin-left: auto;
+  margin-right: 8%;
+  font-size: var(--fs-lead);
+  line-height: 1.4;
+}
+
+/* ---------- Pitch: thin line system around the hero video ---------- */
+.pitch { position: absolute; inset: 0; pointer-events: none; }
+.pitch__lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;             /* clips the corner circles to quarter arcs */
+  border: 1px solid var(--pitch-line);
+}
+:where(.pitch__lines i, .pitch__goal) { position: absolute; display: block; border: 0 solid var(--pitch-line); }
+/* penalty areas: fill each side zone, meeting the video's edge */
+.pitch__box { top: 20%; bottom: 20%; width: var(--side); border-width: 1px 0; }
+.pitch__box--l { left: 0; }
+.pitch__box--r { right: 0; }
+.pitch__six { top: 37%; bottom: 37%; width: calc(var(--side) * 0.38); border-width: 1px; }
+.pitch__six--l { left: -1px; }
+.pitch__six--r { right: -1px; }
+.pitch__spot { top: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: var(--pitch-line); }
+.pitch__spot--l { left: calc(var(--side) * 0.7); }
+.pitch__spot--r { right: calc(var(--side) * 0.7); }
+.pitch__corner { width: 28px; height: 28px; border-width: 1px; border-radius: 50%; }
+.pitch__corner--tl { left: -14px; top: -14px; }
+.pitch__corner--tr { right: -14px; top: -14px; }
+.pitch__corner--bl { left: -14px; bottom: -14px; }
+.pitch__corner--br { right: -14px; bottom: -14px; }
+/* halfway line and centre circle, peeking out above and below the video */
+.pitch__half { left: 50%; width: 0; height: var(--pad); border-left-width: 1px; }
+.pitch__half--t { top: 0; }
+.pitch__half--b { bottom: 0; }
+.pitch__arc {
+  --r: calc(var(--pad) * 0.72);
+  left: calc(50% - var(--r));
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-width: 1px;
+  border-color: rgba(107, 147, 255, 0.45);
+  border-radius: 50%;
+}
+.pitch__arc--t { top: calc(var(--pad) - var(--r)); }
+.pitch__arc--b { bottom: calc(var(--pad) - var(--r)); }
+/* goals sit just outside the boundary */
+.pitch__goal { top: 45%; height: 10%; width: 8px; border-width: 1px; }
+.pitch__goal--l { left: -8px; border-right-width: 0; }
+.pitch__goal--r { right: -8px; border-left-width: 0; }
+.pitch__lbl { position: absolute; top: -1.9em; color: var(--ink-3); font-size: 0.56rem; }
+.pitch__lbl--0 { left: 0; }
+.pitch__lbl--mid { left: 50%; transform: translateX(-50%); }
+.pitch__lbl--end { right: 0; }
+/* a single tactical note: a run and a pass, in the top-right zone */
+.pitch__tactic {
+  position: absolute;
+  right: calc(var(--side) * 0.18);
+  top: calc(var(--pad) * 0.35);
+  width: calc(var(--side) * 0.62);
+  max-width: 90px;
+  overflow: visible;
+}
+.pitch__tactic path { fill: none; stroke: rgba(107, 147, 255, 0.55); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.pitch__tactic path + path { stroke-dasharray: none; }
+.pitch__tactic circle { fill: rgba(107, 147, 255, 0.7); }
+
+/* ---------- Spreads: one per group of photos ---------- */
+.play-canvas { position: relative; overflow: hidden; }
+.spread {
+  position: relative;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding: var(--s-6) var(--gutter) var(--s-7);
+}
+.spread__label { position: relative; z-index: 6; margin-bottom: var(--s-5); color: var(--ink-2); }
+.spread__word {
+  position: absolute;
+  right: -2vw;
+  bottom: 1vw;
+  z-index: 0;
+  font-size: clamp(6rem, 2rem + 16vw, 20rem);
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(157, 167, 179, 0.2);
+  pointer-events: none;
+}
+
+/* The collage recomposes itself for however many photos it holds. */
+.collage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+  row-gap: var(--s-6);
+  align-items: start;
+}
+.collage--n1 .shot { grid-column: 2 / span 8; }
+
+.collage--n2 .shot:nth-child(1) { grid-column: 1 / span 7; }
+.collage--n2 .shot:nth-child(2) { grid-column: 7 / span 5; margin-top: 22%; z-index: 3; }
+
+.collage--n3 .shot:nth-child(1) { grid-column: 1 / span 5; grid-row: 1 / span 2; }
+.collage--n3 .shot:nth-child(2) { grid-column: 5 / span 6; grid-row: 1; margin-top: 18%; z-index: 3; }
+.collage--n3 .shot:nth-child(3) { grid-column: 9 / span 3; grid-row: 2; margin-top: -8%; z-index: 4; }
+
+.collage--many .shot:nth-child(5n + 1) { grid-column: 1 / span 5; }
+.collage--many .shot:nth-child(5n + 2) { grid-column: 7 / span 5; margin-top: 14%; }
+.collage--many .shot:nth-child(5n + 3) { grid-column: 2 / span 4; }
+.collage--many .shot:nth-child(5n + 4) { grid-column: 6 / span 6; margin-top: -4%; z-index: 3; }
+.collage--many .shot:nth-child(5n + 5) { grid-column: 8 / span 4; }
+
+/* ---------- Travel ---------- */
+.travel {
+  position: relative;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding: var(--s-6) var(--gutter) var(--s-7);
+  scroll-margin-top: var(--nav-h);
+}
+.travel__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 0 var(--s-5);
+  margin-bottom: var(--s-5);
+}
+.travel__head .spread__label { grid-column: 1 / -1; }
+.travel__title { font-size: var(--fs-h2); line-height: 0.9; }
+.travel__count { color: var(--ink-2); padding-bottom: 0.3em; }
+
+.tmap__bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem 1.5rem;
+  border-top: 1px solid var(--line-2);
+}
+.tmap__regions { display: flex; flex-wrap: wrap; }
+.tmap__region {
+  position: relative;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  color: var(--ink-3);
+  transition: color var(--t-micro);
+}
+.tmap__region:first-child { padding-left: 0; }
+.tmap__region::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  top: -1px;
+  height: 1px;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms var(--ease-mech);
+}
+.tmap__region:first-child::after { left: 0; }
+.tmap__region:hover { color: var(--ink); }
+.tmap__region[aria-pressed="true"] { color: var(--ink); }
+.tmap__region[aria-pressed="true"]::after { transform: scaleX(1); }
+.tmap__legend { display: flex; align-items: center; gap: 0.5rem; color: var(--ink-3); }
+.tmap__key { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); margin-left: 0.6rem; }
+.tmap__key--home { background: var(--red); margin-left: 0; }
+
+.tmap__stage {
+  position: relative;
+  aspect-ratio: 2.3 / 1;
+  overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(16, 25, 35, 0.55), rgba(3, 5, 7, 0) 70%), var(--bg-1);
+  border: 1px solid var(--line);
+  touch-action: manipulation;
+}
+.tmap__stage.is-pointing { cursor: pointer; }
+.tmap__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tmap__grid { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
+.tmap__land { fill: #0d1621; stroke: rgba(157, 167, 179, 0.3); stroke-width: 0.75; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.tmap__borders { fill: none; stroke: rgba(157, 167, 179, 0.13); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+
+.tmap__pins { position: absolute; inset: 0; pointer-events: none; }
+.tmap__pin {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.tmap__pin::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 3px rgba(43, 99, 255, 0.28);
+  transition: transform 200ms var(--ease-out), background var(--t-micro);
+}
+.tmap__pin::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--blue-text);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity 200ms var(--ease-out), transform 260ms var(--ease-out);
+}
+.tmap__pin.is-home::before { background: var(--red); box-shadow: 0 0 0 3px rgba(255, 48, 79, 0.22); }
+.tmap__pin.is-home::after { border-color: var(--red); }
+.tmap__pin.is-active { z-index: 2; }
+.tmap__pin.is-active::before { transform: scale(1.35); background: var(--blue-text); }
+.tmap__pin.is-home.is-active::before { background: var(--red); }
+.tmap__pin.is-active::after { opacity: 1; transform: none; }
+.tmap__pin.is-out { visibility: hidden; }
+.tmap__pin:focus-visible { outline: 1.5px solid var(--blue-text); outline-offset: -3px; }
+
+.tmap__tip {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: 0;
+  min-width: 150px;
+  max-width: 230px;
+  padding: 0.7rem 0.9rem 0.75rem;
+  background: rgba(6, 10, 16, 0.95);
+  border: 1px solid var(--line-2);
+  border-top-color: var(--blue);
+  pointer-events: none;
+}
+.tmap__tip[hidden] { display: none; }
+.tmap__tip.is-in { animation: tip-in 180ms var(--ease-out); }
+.tmap__tip.is-below.is-in { animation-name: tip-in-below; }
+@keyframes tip-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes tip-in-below { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.tmap__tip-img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; margin-bottom: 0.6rem; }
+.tmap__tip-city { font-size: 1.45rem; line-height: 0.95; }
+.tmap__tip-country { margin-top: 0.3rem; color: var(--ink-2); }
+.tmap__tip-meta { margin-top: 0.35rem; color: var(--blue-text); }
+.tmap__tip-note { margin-top: 0.35rem; font-size: var(--fs-small); color: var(--ink-2); }
+.tmap__hint { margin-top: 0.7rem; color: var(--ink-3); }
+
+/* ---------- Lightbox ---------- */
+.lb {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 20px);
+  background: rgba(1, 2, 4, 0.97);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+}
+.lb.is-open { opacity: 1; }
+.lb[hidden] { display: none; }
+html.lb-open { overflow: hidden; }
+.lb__top { display: flex; justify-content: space-between; align-items: center; min-height: 48px; color: var(--ink-2); }
+.lb__close { min-height: 44px; min-width: 44px; color: var(--ink); }
+.lb__fig { display: grid; grid-template-rows: 1fr auto; gap: 1rem; min-height: 0; align-self: stretch; padding-inline: clamp(0px, 5vw, 5rem); }
+.lb__img { position: relative; display: grid; place-items: center; min-height: 0; }
+.lb__img img { max-width: 100%; max-height: 74vh; object-fit: contain; }
+.lb__img.is-in { animation: lb-in 380ms var(--ease-out); }
+@keyframes lb-in { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+.lb__cap { display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; align-items: baseline; justify-content: center; color: var(--ink-2); }
+.lb__loc { color: var(--ink); }
+.lb__text { flex-basis: 100%; text-align: center; font-size: var(--fs-small); }
+.lb__text:empty { display: none; }
+.lb__credit { color: var(--ink-3); }
+.lb__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  font-size: 1.2rem;
+  transition: border-color var(--t-micro), color var(--t-micro);
+}
+.lb__nav:hover { border-color: var(--blue); color: var(--blue-text); }
+.lb__prev { left: var(--gutter); }
+.lb__next { right: var(--gutter); }
+
+/* ---------- Mobile: simpler collage, smaller tilts ---------- */
+@media (max-width: 760px) {
+  .play-open { padding-top: calc(var(--nav-h) + var(--s-5)); }
+  .play-open__stage { --side: 10px; --pad: 30px; }
+  .play-open__frame { aspect-ratio: 4 / 5; max-height: 72vh; }
+  /* phone: keep the touchline, corners, halfway line and centre arcs; drop the fine print */
+  .pitch__box, .pitch__six, .pitch__spot, .pitch__goal, .pitch__lbl, .pitch__tactic { display: none; }
+  .pitch__corner { width: 20px; height: 20px; }
+  .pitch__corner--tl, .pitch__corner--bl { left: -10px; }
+  .pitch__corner--tr, .pitch__corner--br { right: -10px; }
+  .pitch__corner--tl, .pitch__corner--tr { top: -10px; }
+  .pitch__corner--bl, .pitch__corner--br { bottom: -10px; }
+  .play-open__title { margin-top: calc(-0.4 * var(--fs-mega)); }
+  .play-open__lede { margin: var(--s-4) 0 0; }
+  .shot { --r: 0deg; }
+  .collage { grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: var(--s-5); }
+  .collage .shot:nth-child(n) { grid-column: 1 / -1; grid-row: auto; margin-top: 0; }
+  .collage--n2 .shot:nth-child(2),
+  .collage--n3 .shot:nth-child(2),
+  .collage--many .shot:nth-child(even) { grid-column: 2 / -1; margin-top: -12%; transform: rotate(1deg); }
+  .collage--n3 .shot:nth-child(3),
+  .collage--many .shot:nth-child(3n) { grid-column: 1 / span 4; }
+  .collage--n1 .shot { transform: rotate(-1deg); }
+  .travel__head { grid-template-columns: 1fr; }
+  .travel__count { margin-top: 0.6rem; }
+  .tmap__stage { aspect-ratio: 4 / 3; }
+  .tmap__legend { display: none; }
+  .tmap__region { padding: 0 0.7rem; }
+  .lb__nav { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); transform: none; }
+}

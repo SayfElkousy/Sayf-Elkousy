@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Style guide — Sayf Elkousy</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@300..900&family=Instrument+Sans:wdth,wght@75..100,400..700&family=JetBrains+Mono:wght@400;500&family=Reem+Kufi:wght@400..700&family=Caveat:wght@500;600&display=swap" />
+  <link rel="stylesheet" href="/assets/css/tokens.css" />
+  <link rel="stylesheet" href="/assets/css/base.css" />
+  <link rel="stylesheet" href="/assets/css/components.css" />
+  <style>
+    .sg { padding: 60px var(--gutter); display: grid; gap: 56px; position: relative; z-index: 2; }
+    .sg h2 { margin-bottom: 14px; }
+    .sw { display: flex; flex-wrap: wrap; gap: 10px; }
+    .sw div { width: 120px; height: 72px; border: 1px solid var(--line-2); display: flex; align-items: flex-end; padding: 6px; font-family: var(--font-mono); font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div class="grid-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="sg">
+    <section>
+      <p class="mono section-index">01 / Wordmark — stack</p>
+      <div id="wm1" style="max-width:520px;margin-top:20px"></div>
+      <div id="wm2" style="max-width:520px;margin-top:40px;color:var(--blue)"></div>
+    </section>
+    <section>
+      <p class="mono section-index">02 / Wordmark — line</p>
+      <div id="wm3" style="margin-top:20px"></div>
+    </section>
+    <section>
+      <p class="mono section-index">03 / Colour</p>
+      <div class="sw" style="margin-top:14px">
+        <div style="background:var(--bg-0)">bg-0</div><div style="background:var(--bg-1)">bg-1</div>
+        <div style="background:var(--bg-2)">bg-2</div><div style="background:var(--bg-3)">bg-3</div>
+        <div style="background:var(--blue)">blue</div><div style="background:var(--blue-text);color:#000">blue-text</div>
+        <div style="background:var(--red)">red · rare</div><div style="background:var(--ink);color:#000">ink</div>
+        <div style="background:var(--ink-2);color:#000">ink-2</div>
+      </div>
+    </section>
+    <section>
+      <p class="mono section-index">04 / Type</p>
+      <h1 class="display" style="font-size:var(--fs-h1)">Enter the world</h1>
+      <p class="lead" style="margin-top:20px">Instrument Sans lead. I'm interested in computer science as something that increasingly shapes institutions and everyday life.</p>
+      <p style="margin-top:16px" class="muted">Body copy in secondary grey, readable at length, sixty-odd characters to a line.</p>
+      <p class="mono" style="margin-top:16px">29.7604° N · 95.3698° W — 02 / SYSTEM</p>
+      <p class="hand" style="margin-top:16px">your move →</p>
+      <p class="ar" style="font-size:3rem;margin-top:10px">سيف</p>
+    </section>
+    <section>
+      <p class="mono section-index">05 / Placeholder + button</p>
+      <div style="width:320px;height:200px;margin-top:14px"><div class="ph"><span class="ph__corner ph__corner--tl">IMG-01</span><span class="ph__label">[PHOTO PLACEHOLDER — SOCCER]</span></div></div>
+      <a class="btn" href="#" style="margin-top:20px">Open PDF <span class="arrow">→</span></a>
+    </section>
+  </div>
+  <script type="module">
+    import { wordmarkStack, wordmarkLine } from '/assets/js/components/wordmark.js';
+    wm1.innerHTML = wordmarkStack({ title: 'Sayf Elkousy' });
+    wm2.innerHTML = wordmarkStack({ mode: 'outline', pip: false });
+    wm3.innerHTML = wordmarkLine();
+  </script>
+</body>
+</html>

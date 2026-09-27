@@ -1,0 +1,87 @@
+/* ==========================================================================
+   TOKENS — the single source of truth for the visual system.
+   90% dark / white / blue. Red is rationed (see --red usage notes).
+   ========================================================================== */
+
+:root {
+  /* Grounds */
+  --bg-0: #030507;          /* almost black — page ground */
+  --bg-1: #060a10;          /* blue-black */
+  --bg-2: #09111a;          /* dark navy */
+  --bg-3: #101923;          /* raised surface */
+  --bg-4: #16212d;          /* raised + hover */
+
+  /* Ink */
+  --ink: #f1f4f6;           /* warm white */
+  --ink-2: #9da7b3;         /* secondary */
+  --ink-3: #6f7a86;         /* tertiary — decorative / large labels only */
+
+  /* Accent: cobalt. Two tunings — fills/lines vs. text on black (contrast). */
+  --blue: #2b63ff;
+  --blue-text: #6b93ff;     /* ≥ 5:1 on --bg-0 */
+  --blue-soft: rgba(43, 99, 255, 0.16);
+  --blue-glow: rgba(43, 99, 255, 0.45);
+
+  /* Red: rare. Status pips, aviation lights, one cursor moment, the transition echo. */
+  --red: #ff304f;
+
+  /* Lines */
+  --line: rgba(157, 167, 179, 0.14);
+  --line-2: rgba(157, 167, 179, 0.26);
+  --line-3: rgba(241, 244, 246, 0.5);
+
+  /* Type */
+  --font-display: "Big Shoulders Display", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-arabic: "Reem Kufi", "Geeza Pro", "Noto Kufi Arabic", "Segoe UI", sans-serif;
+  --font-hand: "Caveat", "Bradley Hand", "Segoe Print", cursive;
+
+  /* Fluid type scale (clamp, not breakpoints) */
+  --fs-mono: clamp(0.66rem, 0.62rem + 0.12vw, 0.74rem);
+  --fs-small: clamp(0.82rem, 0.78rem + 0.15vw, 0.9rem);
+  --fs-body: clamp(1rem, 0.95rem + 0.22vw, 1.14rem);
+  --fs-lead: clamp(1.18rem, 1.02rem + 0.6vw, 1.55rem);
+  --fs-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.3rem);
+  --fs-h2: clamp(2.6rem, 1.6rem + 4.2vw, 6rem);
+  --fs-h1: clamp(3.6rem, 1.4rem + 9.5vw, 12rem);
+  --fs-mega: clamp(5.5rem, 1rem + 19vw, 22rem);
+  --fs-hand: clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem);
+
+  /* Space */
+  --gutter: clamp(1rem, 0.4rem + 2.6vw, 2.75rem);
+  --col-gap: clamp(0.75rem, 0.4rem + 1.2vw, 1.5rem);
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2.5rem;
+  --s-7: clamp(3rem, 2rem + 4vw, 6rem);
+  --s-8: clamp(5rem, 3rem + 8vw, 11rem);
+  --max: 1600px;
+  --nav-h: 76px;
+
+  /* Motion — quick, precise, mechanical. No bounce. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mech: cubic-bezier(0.7, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.55, 0, 0.9, 0.3);
+  --t-micro: 180ms;
+  --t-reveal: 420ms;
+  --t-major: 760ms;
+
+  /* Layers (conceptual depth) */
+  --z-atmos: 0;
+  --z-grid: 1;
+  --z-content: 2;
+  --z-photo: 3;
+  --z-annot: 4;
+  --z-overlay: 50;
+  --z-nav: 60;
+  --z-transition: 90;
+  --z-cursor: 100;
+}
+
+@media (max-width: 760px) {
+  :root { --nav-h: 60px; }
+}

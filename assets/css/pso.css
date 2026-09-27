@@ -1,0 +1,57 @@
+/* ==========================================================================
+   PSO SEARCH SPACE — the visual for the PSO achievement
+   (components/visuals/pso-search-space.js). The cube, swarm and markers are
+   drawn on the canvas; the HUD is HTML so its type stays crisp.
+   ========================================================================== */
+
+.pso {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(70% 60% at 50% 55%, rgba(16, 25, 35, 0.55), transparent 75%);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pso__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* input is read on .pso; nothing drawn can capture it */
+}
+
+.pso__hud {
+  position: absolute;
+  display: flex;
+  gap: 1.2em;
+  margin: 0;
+  max-width: none;
+  color: var(--ink-3);
+  font-size: 0.62rem;
+  pointer-events: none;
+}
+.pso__hud--tl { top: clamp(1rem, 2vw, 1.6rem); left: clamp(1rem, 2vw, 1.75rem); }
+.pso__hud--bl { bottom: clamp(1rem, 2vw, 1.6rem); left: clamp(1rem, 2vw, 1.75rem); font-variant-numeric: tabular-nums; }
+.pso__fx { color: var(--ink-2); text-transform: none; letter-spacing: 0.06em; }
+.pso__best { color: var(--blue-text); text-transform: none; }
+
+.pso__hint {
+  position: absolute;
+  right: clamp(1rem, 2vw, 1.75rem);
+  bottom: clamp(1rem, 2vw, 1.6rem);
+  max-width: 22ch;
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 0.6rem;
+  text-align: right;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .pso__hud--tl .pso__fx { display: none; }
+  .pso__hint { max-width: 14ch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pso__hint { display: none; }
+}

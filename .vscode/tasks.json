@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "serve",
+            "type": "shell",
+            "command": "python3 serve.py",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "serve",
+                "pattern": { "regexp": "^__never__$" },
+                "background": {
+                    "activatesByDefault": true,
+                    "beginsPattern": "Sayf Elkousy",
+                    "endsPattern": "http://localhost:\\d+"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,55 @@
+/* ==========================================================================
+   ROUTE TRANSITION — spinning wordmark overlay.
+   ========================================================================== */
+
+.route-transition {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-transition);
+  pointer-events: none;
+  visibility: hidden;
+  contain: strict;
+}
+.route-transition.is-active { visibility: visible; }
+
+.rt__veil {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(9, 17, 26, 0.9), rgba(3, 5, 7, 1) 70%),
+    var(--bg-0);
+}
+
+.rt__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.rt__mark {
+  grid-area: 1 / 1;
+  /* Laid out at hold size so the midpoint frame is crisp vector, not an upscaled raster. */
+  width: min(92vw, 1500px);
+  opacity: 0;
+  color: var(--ink);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.rt__mark--blue { color: var(--blue); }
+.rt__mark--red { color: var(--red); }
+.rt__mark--blue .wordmark, .rt__mark--red .wordmark { --wm-rule: transparent; }
+
+.rt__dest {
+  position: absolute;
+  z-index: 2;
+  left: var(--gutter);
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  opacity: 0;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.rt__arrow { color: var(--blue-text); }
+
+.route-transition.is-reduced .rt__stage,
+.route-transition.is-reduced .rt__dest { display: none; }

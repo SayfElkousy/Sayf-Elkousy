@@ -1,0 +1,206 @@
+/* ==========================================================================
+   SHARED COMPONENTS — wordmark, placeholders, annotations, footer.
+   ========================================================================== */
+
+/* ---------- Wordmark ---------- */
+.wordmark--stack { width: 100%; height: auto; overflow: visible; color: inherit; }
+
+.wordmark--line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  white-space: nowrap;
+  line-height: 1;
+}
+.wordmark--line .wm-en {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.28rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.wordmark--line .wm-gap { display: inline-block; width: 0.42em; }
+.wordmark--line .wm-bar {
+  width: 1px;
+  height: 1.1em;
+  background: var(--blue);
+}
+.wordmark--line .wm-ar {
+  font-size: 1.12rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  transform: translateY(-0.08em);
+}
+
+/* ---------- Placeholders: honest, designed, clearly marked ---------- */
+.ph {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom right, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    var(--bg-2);
+  border: 1px dashed var(--line-2);
+  color: var(--ink-2);
+  text-align: center;
+  overflow: hidden;
+}
+.ph__label {
+  position: relative;
+  max-width: 90%;
+  padding: 0.45rem 0.65rem;
+  background: var(--bg-0);
+  border: 1px solid var(--line-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.ph__corner {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+.ph__corner--tl { top: 8px; left: 10px; }
+.ph__corner--br { bottom: 8px; right: 10px; }
+
+.tbd {
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Handmade annotations (layer 4) ---------- */
+.annot {
+  position: absolute;
+  z-index: var(--z-annot);
+  color: var(--ink);
+  pointer-events: none;
+}
+.annot svg { overflow: visible; width: 100%; height: auto; }
+.annot--blue { color: var(--blue-text); }
+.annot--red { color: var(--red); }
+
+/* ---------- Tags (flat, square, quiet — not pills) ---------- */
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.tag {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--line-2);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* ---------- Page opener shared anatomy ---------- */
+.page-top { padding-top: calc(var(--nav-h) + var(--s-7)); }
+.page-code {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+  color: var(--ink-2);
+}
+.page-code .line { flex: 0 0 48px; height: 1px; background: var(--blue); }
+
+/* ---------- Footer: a quiet closing moment ---------- */
+.site-end {
+  position: relative;
+  padding-block: var(--s-7) calc(var(--s-5) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--line);
+  background: linear-gradient(to bottom, var(--bg-0), var(--bg-1));
+  overflow: hidden;
+}
+.site-end .grid { align-items: end; row-gap: var(--s-5); }
+.site-end__title {
+  grid-column: 1 / span 7;
+  font-size: var(--fs-h2);
+  line-height: 0.9;
+}
+.site-end__cta {
+  grid-column: 8 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-5);
+}
+.site-end__sig { position: relative; width: min(200px, 45%); color: var(--ink-3); }
+.site-end__base {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  margin-top: var(--s-6);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+  color: var(--ink-3);
+}
+.site-end__top { min-height: 24px; transition: color var(--t-micro); }
+.site-end__top:hover { color: var(--ink); }
+
+@media (max-width: 760px) {
+  .site-end__title, .site-end__cta { grid-column: 1 / -1; }
+  .site-end__cta { justify-content: space-between; }
+}
+
+/* ---------- Next stops: a descending staircase of type ---------- */
+.next-stops {
+  position: relative;
+  padding-block: var(--s-7);
+}
+.next-stops__kicker { margin-bottom: var(--s-5); }
+.stops { border-top: 1px solid var(--line-2); }
+.stops li {
+  border-bottom: 1px solid var(--line-2);
+  padding-left: calc(var(--i) * clamp(1.5rem, 7vw, 8rem));
+}
+.stops a {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3rem auto 1fr;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding-block: clamp(0.8rem, 1.6vw, 1.6rem);
+  overflow: hidden;
+}
+.stops a::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 420ms var(--ease-mech);
+}
+.stops a:hover::before, .stops a:focus-visible::before { transform: scaleX(1); }
+.stops__idx { color: var(--ink-2); }
+.stops__label {
+  font-size: var(--fs-h2);
+  line-height: 0.9;
+  transition: letter-spacing 320ms var(--ease-out), color var(--t-micro);
+}
+.stops a:hover .stops__label, .stops a:focus-visible .stops__label { letter-spacing: 0.03em; color: var(--blue-text); }
+.stops__mood { justify-self: end; color: var(--ink-2); transition: color var(--t-micro); }
+.stops a:hover .stops__mood { color: var(--ink); }
+@media (max-width: 760px) {
+  .stops a { grid-template-columns: 2rem 1fr; }
+  .stops__mood { grid-column: 2; justify-self: start; }
+}
+
+/* ---------- 404 ---------- */
+.lost { min-height: 88vh; padding-bottom: var(--s-7); }
+.lost .page-code { margin-bottom: var(--s-6); }
+.lost__title { font-size: var(--fs-h1); line-height: 0.86; }
+.lost__lead { margin-top: var(--s-5); }
+.lost__links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: var(--s-5); max-width: none; }

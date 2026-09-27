@@ -1,0 +1,312 @@
+/* ==========================================================================
+   BASE — reset, type, grid, focus, reveals.
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg-0);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scrollbar-color: var(--bg-4) var(--bg-0);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-0);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  font-kerning: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img, svg, canvas, video, iframe { display: block; max-width: 100%; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, h4, p, ul, ol, figure, blockquote { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+::selection { background: var(--blue); color: var(--ink); }
+
+main { position: relative; z-index: var(--z-content); outline: none; }
+main:focus-visible { outline: none; }
+
+/* ---------- Focus: always visible, always blue, always sharp ---------- */
+:focus-visible {
+  outline: 1.5px solid var(--blue-text);
+  outline-offset: 4px;
+}
+
+.skip-link {
+  position: fixed;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 200;
+  padding: 0.7rem 1rem;
+  background: var(--ink);
+  color: var(--bg-0);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.skip-link:focus { top: 12px; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Typography roles ---------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.hand {
+  font-family: var(--font-hand);
+  font-size: var(--fs-hand);
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+.ar {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  unicode-bidi: isolate;
+  letter-spacing: 0 !important; /* never track Arabic: it breaks joining */
+}
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+  color: var(--ink);
+  max-width: 34ch;
+}
+.muted { color: var(--ink-2); }
+.blue { color: var(--blue-text); }
+.red-pip {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--red);
+  vertical-align: middle;
+}
+
+p { max-width: 62ch; }
+p + p { margin-top: 1em; }
+
+/* Links inside prose */
+.prose a, a.inline {
+  background-image: linear-gradient(var(--blue), var(--blue));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size var(--t-micro) var(--ease-out), color var(--t-micro);
+}
+.prose a:hover, a.inline:hover { color: var(--blue-text); }
+
+/* ---------- 12-column grid ---------- */
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+}
+@media (max-width: 760px) {
+  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Layer 1 — architectural column lines. Faint; the order beneath the experiments. */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-grid);
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--col-gap);
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  opacity: 0.55;
+  transition: opacity 600ms var(--ease-out);
+}
+.grid-lines i {
+  border-left: 1px solid var(--line);
+}
+.grid-lines i:nth-child(12) { border-right: 1px solid var(--line); }
+.grid-lines i:nth-child(13) { display: none; }
+@media (max-width: 760px) {
+  .grid-lines { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grid-lines i:nth-child(n+5) { display: none; }
+  .grid-lines i:nth-child(4) { border-right: 1px solid var(--line); }
+}
+/* Home: the grid is born out of the city, so it starts hidden */
+body[data-page="home"] .grid-lines { opacity: var(--home-grid, 0); transition: none; }
+
+/* ---------- Section scaffolding ---------- */
+.section {
+  position: relative;
+  padding-block: var(--s-8);
+}
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-6);
+}
+.section-index {
+  color: var(--blue-text);
+}
+.rule {
+  height: 1px;
+  background: var(--line-2);
+  border: 0;
+  margin: 0;
+}
+
+/* ---------- Buttons: hard edges, one line weight ---------- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8em;
+  min-height: 48px;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid var(--line-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  overflow: hidden;
+  isolation: isolate;
+  transition: color var(--t-micro) var(--ease-out), border-color var(--t-micro);
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms var(--ease-mech);
+}
+.btn:hover::before, .btn:focus-visible::before { transform: scaleX(1); }
+.btn:hover, .btn:focus-visible { border-color: var(--blue); }
+.btn[aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.btn .arrow { transition: transform var(--t-micro) var(--ease-out); }
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* ---------- Scroll reveals: different content, different reveals ---------- */
+[data-reveal] { transition-timing-function: var(--ease-out); }
+
+[data-reveal="mask"] {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(0.18em);
+  transition: clip-path 560ms var(--ease-out), transform 560ms var(--ease-out);
+}
+[data-reveal="mask"].is-in { clip-path: inset(0 0 -0.2em 0); transform: none; }
+
+[data-reveal="wipe"] {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 620ms var(--ease-mech);
+}
+[data-reveal="wipe"].is-in { clip-path: inset(0 0 0 0); }
+
+[data-reveal="fade"] {
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+[data-reveal="fade"].is-in { opacity: 1; }
+
+[data-reveal="rise"] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+}
+[data-reveal="rise"].is-in { opacity: 1; transform: none; }
+
+[data-reveal="line"] {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 800ms var(--ease-mech);
+}
+[data-reveal="line"].is-in { transform: scaleX(1); }
+
+/* Annotations draw themselves */
+.annot path, .annot line, .annot polyline, .annot ellipse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+[data-draw] path, [data-draw] line, [data-draw] polyline, [data-draw] ellipse {
+  stroke-dasharray: var(--len, 600);
+  stroke-dashoffset: var(--len, 600);
+  transition: stroke-dashoffset 900ms var(--ease-out);
+}
+[data-draw].is-in path, [data-draw].is-in line, [data-draw].is-in polyline, [data-draw].is-in ellipse {
+  stroke-dashoffset: 0;
+}
+[data-draw] .hand, [data-draw] text {
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out) 450ms;
+}
+[data-draw].is-in .hand, [data-draw].is-in text { opacity: 1; }
+
+.noscript { padding: 30vh var(--gutter); }
+
+/* ---------- Reduced motion: keep the content, drop the choreography ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal], [data-reveal].is-in {
+    clip-path: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  [data-draw] path, [data-draw] line, [data-draw] polyline, [data-draw] ellipse {
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  [data-draw] .hand, [data-draw] text { opacity: 1 !important; }
+}

@@ -13,7 +13,12 @@
    • A link into a section of another page (/about → /#work) swaps under the
      transition, lands just short of the section, then glides into place.
    • Retired URLs are rewritten before anything renders (`redirects`).
+   • The site may live in a sub-folder (GitHub Pages: /<repo>/). Internally
+     everything is an *app path* ('/about'); core/base.js converts to and
+     from real URLs at the edges (history, clicks).
    ========================================================================== */
+
+import { appPath, link } from './base.js';
 
 const SCROLL_KEY = 'sayf:scroll';
 
@@ -44,9 +49,15 @@ export class Router {
     this.pendingHash = null;    // section to glide to once the transition clears
   }
 
-  static normalize(pathname) {
-    let p = pathname.replace(/\/index\.html$/, '/').replace(/\/+$/, '');
+  /** Tidy an app path: '/about/' → '/about', '/index.html' → '/'. */
+  static clean(p) {
+    p = p.replace(/\/index\.html$/, '/').replace(/\/+$/, '');
     return p === '' ? '/' : p;
+  }
+
+  /** A real URL pathname (with the site's base folder) → a tidy app path. */
+  static normalize(pathname) {
+    return Router.clean(appPath(pathname) ?? pathname);
   }
 
   start() {
@@ -55,8 +66,8 @@ export class Router {
     // Canonicalise /about/ → /about without adding an entry.
     const norm = Router.normalize(location.pathname);
     const key = history.state?.key || this.#newKey();
-    if (norm !== location.pathname || !history.state?.key) {
-      history.replaceState({ key }, '', norm + location.search + location.hash);
+    if (link(norm) !== location.pathname || !history.state?.key) {
+      history.replaceState({ key }, '', link(norm) + location.search + location.hash);
     }
     this.#redirect();
 
@@ -68,22 +79,23 @@ export class Router {
     return this.#swap({ initial: true });
   }
 
-  /** Programmatic navigation. */
+  /** Programmatic navigation. `path` is an app path: '/about', '/#work'. */
   navigate(path, { replace = false } = {}) {
-    let url = new URL(path, location.origin);
-    const moved = this.redirects[Router.normalize(url.pathname)];
-    if (moved) url = new URL(moved, location.origin);
-    const target = Router.normalize(url.pathname);
+    const APP = 'http://app';
+    let url = new URL(path, APP);
+    const moved = this.redirects[Router.clean(url.pathname)];
+    if (moved) url = new URL(moved, APP);
+    const target = Router.clean(url.pathname);
     if (target === this.current && !this.busy) {
       // Same page: scroll to the section (or the top). No transition, no new entry.
-      history.replaceState(history.state, '', target + url.hash);
+      history.replaceState(history.state, '', link(target) + url.hash);
       this.#scrollToHash({ smooth: true, focus: true });
       return;
     }
     this.#rememberScroll();
     const state = { key: this.#newKey() };
-    if (replace) history.replaceState(state, '', target + url.hash);
-    else history.pushState(state, '', target + url.hash);
+    if (replace) history.replaceState(state, '', link(target) + url.hash);
+    else history.pushState(state, '', link(target) + url.hash);
     this.#run();
   }
 
@@ -93,13 +105,20 @@ export class Router {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const a = e.target.closest('a[href]');
     if (!a || a.target === '_blank' || a.hasAttribute('download') || a.dataset.external !== undefined) return;
+    // href="#x" always means this page (even under a <base>, as on 404.html).
+    if (a.getAttribute('href').startsWith('#') && this.current) {
+      e.preventDefault();
+      this.navigate(this.current + a.getAttribute('href'));
+      return;
+    }
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin) return;
+    const ap = appPath(url.pathname);
+    if (ap === null) return; // outside this site's folder
     if (/\.[a-z0-9]{2,5}$/i.test(url.pathname) && !url.pathname.endsWith('.html')) return; // files (pdf, jpg…)
-    if (url.pathname.startsWith('/tests/')) return;
+    if (ap.startsWith('/tests/')) return;
     e.preventDefault();
-    const target = Router.normalize(url.pathname);
-    this.navigate(target + url.hash);
+    this.navigate(Router.clean(ap) + url.hash);
   };
 
   #onPop = () => {
@@ -114,7 +133,7 @@ export class Router {
   /** Rewrite a retired URL in place (no new history entry). */
   #redirect() {
     const to = this.redirects[Router.normalize(location.pathname)];
-    if (to) history.replaceState(history.state, '', to);
+    if (to) history.replaceState(history.state, '', link(to));
   }
 
   #hashTarget() {

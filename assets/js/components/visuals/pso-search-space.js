@@ -115,7 +115,7 @@ class PsoSearchSpace {
       this.visible = e.isIntersecting;
       if (this.visible && this.introAt < 0) this.introAt = this.time;
       this.visible ? this.start() : this.stop();
-    }, { threshold: 0.08 });
+    }, { threshold: 0.3 }); // ≥30% on screen: a neighbour just peeking in stays paused
     this.io.observe(this.root);
     this.d.on(document, 'visibilitychange', () => (document.hidden ? this.stop() : this.start()));
 

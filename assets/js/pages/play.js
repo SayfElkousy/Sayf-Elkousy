@@ -12,6 +12,7 @@ import { photoCanvasMarkup } from '../components/photo-canvas.js';
 import { PhotoLightbox } from '../components/photo-lightbox.js';
 import { travelMarkup, initTravelMap } from '../components/travel-map.js';
 import { siteEnd, bindSiteEnd } from '../components/site-end.js';
+import { asset } from '../core/base.js';
 
 /* Pitch markings drawn around the video (decorative; see play.css "Pitch").
    The video sits where the centre of the pitch would be; penalty areas,
@@ -45,8 +46,8 @@ function heroMarkup() {
     <div class="play-open__hero">
       <div class="play-open__frame">
         <video class="play-open__video" muted loop playsinline ${still ? 'preload="metadata"' : 'autoplay preload="auto"'}
-          ${v.poster ? `poster="${esc(v.poster)}"` : ''} aria-label="${esc(v.label)}" disablepictureinpicture>
-          <source src="${esc(v.src)}${v.poster ? '' : '#t=0.1'}" type="video/mp4">
+          ${v.poster ? `poster="${esc(asset(v.poster))}"` : ''} aria-label="${esc(v.label)}" disablepictureinpicture>
+          <source src="${esc(asset(v.src))}${v.poster ? '' : '#t=0.1'}" type="video/mp4">
         </video>
       </div>
       <button type="button" class="play-open__toggle mono">

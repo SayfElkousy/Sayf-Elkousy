@@ -7,12 +7,13 @@
   const q = new URLSearchParams(location.search);
   const f = document.createElement('iframe');
   f.width = q.get('w') || 390; f.height = q.get('h') || 844;
-  f.src = q.get('src') || '/';
+  const B = location.pathname.replace(/tests\/.*$/, ''); // site folder (e.g. /Sayf_Website/)
+  f.src = B + (q.get('src') || '/').replace(/^\//, '');
   if (q.get('y')) f.onload = () => setTimeout(() => f.contentWindow.scrollTo(0, +q.get('y')), +(q.get('delay') || 1200));
   // ?nav=/about&freeze=300 → click a nav link after load, freeze all animations N ms later.
   if (q.get('nav')) f.onload = () => setTimeout(() => {
     const d = f.contentDocument;
-    d.querySelector(`a[href="${q.get('nav')}"]`).click();
+    d.querySelector(`a[href="${B + q.get('nav').replace(/^\//, '')}"]`).click();
     setTimeout(() => {
       d.getAnimations().forEach((a) => a.pause());
       f.contentWindow.__frozen = true;

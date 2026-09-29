@@ -18,6 +18,7 @@
 import { WORLD } from '../data/world-map.js';
 import { travelLocations, travelRegions } from '../data/travel.js';
 import { esc, disposer, reducedMotion, isNarrow } from '../core/utils.js';
+import { asset } from '../core/base.js';
 
 const K = WORLD.width / 360;
 const project = (lon, lat) => [(lon + 180) * K, (WORLD.latTop - lat) * K];
@@ -37,7 +38,7 @@ function describe(p) {
 
 function card(p) {
   return `
-    ${p.photo?.src ? `<img class="tmap__tip-img" src="${esc(p.photo.src)}" alt="${esc(p.photo.alt || '')}" loading="lazy">` : ''}
+    ${p.photo?.src ? `<img class="tmap__tip-img" src="${esc(asset(p.photo.src))}" alt="${esc(p.photo.alt || '')}" loading="lazy">` : ''}
     <p class="tmap__tip-city display">${esc(p.city)}</p>
     ${p.city !== p.country ? `<p class="tmap__tip-country mono">${esc(p.country)}</p>` : ''}
     ${p.home ? '<p class="tmap__tip-meta mono"><span class="red-pip" aria-hidden="true"></span> Home</p>' : ''}

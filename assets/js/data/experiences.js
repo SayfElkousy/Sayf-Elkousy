@@ -13,7 +13,7 @@
      year      '2024–now', '2023', …                (collapsed state)
      desc      1–3 sentences                        (expanded)
      skills    short list                           (expanded)
-     image     '/assets/img/…' or null              (expanded)
+     image     'assets/img/…' or null              (expanded)
      link      { label, href } or null              (expanded)
      related   ids of connected experiences (draws a line on the map)
      at        [x, y] position on the map, 0–1000 × 0–640

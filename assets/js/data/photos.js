@@ -16,8 +16,8 @@
    ========================================================================== */
 
 export const heroVideo = {
-  src: '/assets/video/play-hero.mp4',
-  poster: null, // optional still, e.g. '/assets/photos/play-hero-poster.jpg' — used for reduced motion
+  src: 'assets/video/play-hero.mp4',
+  poster: null, // optional still, e.g. 'assets/photos/play-hero-poster.jpg' — used for reduced motion
   label: 'Looping video clip that opens the Play page',
 };
 
@@ -33,8 +33,8 @@ export const photos = [
   {
     id: 'elsik-goal',
     group: 'sport',
-    src: '/assets/photos/elsikgoal-1800.jpg',
-    full: '/assets/photos/elsikgoal.jpg',
+    src: 'assets/photos/elsikgoal-1800.jpg',
+    full: 'assets/photos/elsikgoal.jpg',
     width: 3600,
     height: 2400,
     alt: 'Soccer players in white kits celebrating a goal together on a floodlit field at night.',
@@ -43,6 +43,6 @@ export const photos = [
     caption: null,
     credit: 'Yuval Cohen Photography', // from the photo's own watermark/metadata
   },
-  // { id: 'pickup', group: 'friends', src: '/assets/photos/pickup.jpg', width: 1800, height: 1200,
+  // { id: 'pickup', group: 'friends', src: 'assets/photos/pickup.jpg', width: 1800, height: 1200,
   //   alt: '…', location: '…', year: '…', caption: '…' },
 ];

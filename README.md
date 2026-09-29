@@ -11,7 +11,14 @@ python3 serve.py 8001     # another port, if 8000 is taken
 
 `serve.py` behaves like a static host: `/about`, `/play` load directly, `/work` redirects to `/#work`, unknown paths get the 404 page.
 No Node or npm needed. In VS Code, **F5** starts the server and opens Chrome (`.vscode/launch.json` + `tasks.json`).
-Don't open `index.html` from Finder (`file://`) — ES modules and the root-absolute `/assets/…` paths need a server.
+Don't open `index.html` from Finder (`file://`) — ES modules need a server.
+
+To see it exactly as GitHub Pages serves it (in a sub-folder, case-sensitive file names, `404.html` for
+missing paths, no fallback):
+
+```bash
+python3 serve.py --base=/Sayf_Website/   # → http://localhost:8000/Sayf_Website/  (tests: …/Sayf_Website/tests/)
+```
 
 ## Test
 
@@ -25,10 +32,14 @@ With the server running:
 
 | What | File |
 |---|---|
-| Email / GitHub / LinkedIn (sidebar), resume toggle, subtitle, cursor on/off | `assets/js/data/site.js` |
-| Selected work — one rounded card per achievement (Home, `/#work`) | `assets/js/data/work.js` |
+| Email / LinkedIn / GitHub / Resume (Contact sidebar), subtitle, cursor on/off | `assets/js/data/site.js` |
+| Résumé PDF (opened from Contact → Resume) | `assets/docs/sayf-elkousy-resume.pdf` |
+| Selected work cards, Research, Technical Skills (Home, `/#work`) | `assets/js/data/work.js` |
+| Work photos | originals in `assets/photos/` (exact names, case matters) + downsized copies in `assets/photos/web/` (`<name>-1600.jpg`, `<name>-800.jpg`, made with `sips -Z`); list them in `images:` in `data/work.js` |
+| Research PDFs | `assets/docs/Research/` — linked from `research.entries` in `data/work.js` |
+| Education (About) | `assets/js/data/about.js` → `education` |
 | "What I'm involved in" map (Home, after Selected work) | `assets/js/data/experiences.js` |
-| About article text, infobox facts, Thoth caption, portrait path (About) | `assets/js/data/about.js` — portrait goes at `assets/photos/portrait.jpg` |
+| About article text, infobox facts, Thoth caption, portrait path (About) | `assets/js/data/about.js` — portrait goes at `assets/photos/professional-portrait.jpg` |
 | About illustrations (Thoth, chess knight) | `assets/js/components/illustrations.js` |
 | Photos + hero video (Play) | `assets/js/data/photos.js` + files in `assets/photos/`, `assets/video/` |
 | Travel map pins (Play) | `assets/js/data/travel.js` — one object per place |
@@ -37,13 +48,12 @@ With the server running:
 Anything in `[BRACKETS]` (or a photo with `src: null`) is a placeholder and is **not rendered** —
 sections with no real content simply don't appear, and show up once you fill them in.
 
-### Adding an achievement
+### Adding a Work activity
 
-Add an object to `achievements` in `assets/js/data/work.js` (`title`, `description`, and optionally
-`organization`, `date`, `link`). Give it its own visual: write a module like
-`assets/js/components/visuals/pso-search-space.js` exporting `{ markup(), mount(el) → cleanup }`,
-register it in `visuals` in `assets/js/components/achievement.js`, and set `visual: '<key>'`.
-With `visual: null` the card renders as text only.
+Add an object to `achievements` in `assets/js/data/work.js` (`title`, `organization`, `dates`, `location`,
+`description`) with `images: []` holding 0, 1 or 2 photos (`{ src, web, w, h, alt, pos }` — see the comment
+at the top of that file). 0 photos shows a quiet placeholder panel, 1 fills the visual side, 2 adds a docked
+pane for the second photo. Only PSO has an interactive visual (`visual: 'pso'`).
 
 ## Structure
 
@@ -56,8 +66,8 @@ assets/css/                tokens · base · components · nav · sidebar · tra
 assets/js/main.js          wires router, nav, sidebar, transition, cursor
 assets/js/core/            router (incl. redirects + in-page sections), reveals, scramble, utils
 assets/js/components/      nav, sidebar, wordmark, route-transition, cursor, achievement, experience-explorer,
-                           resume-viewer, travel-map, photo-canvas, photo-lightbox, next-stops, site-end, illustrations
-assets/js/components/visuals/  pso-search-space (cube, projection, input, loop) · penguin-swarm (penguin SVG + PSO/flocking)
+                           travel-map, photo-canvas, photo-lightbox, next-stops, site-end, illustrations
+assets/js/components/visuals/  pso-search-space + penguin-swarm (the PSO card's interactive visual)
 assets/js/data/world-map.js  generated map geometry (tools/bake_world_map.py, Natural Earth 110m)
 assets/js/components/city/ city-hero (orchestrator), skyline, atmosphere, rain, lightning, searchlight
 assets/js/pages/           home (city → #work → more), about, play, not-found
@@ -69,4 +79,16 @@ the nav, beside the wordmark) opens the sidebar.
 
 ## Deploying
 
-Upload the folder to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages at a root domain). The generated route folders mean you need no rewrite rules. Asset paths are root-absolute (`/assets/…`), so the site must be served from a domain root, not a subpath.
+Upload the folder to any static host. It works from a domain root (Netlify, Cloudflare Pages, a custom
+domain) **and** from a sub-folder (GitHub Pages project sites: `https://<user>.github.io/<repo>/`) with
+no configuration:
+
+- HTML shells use relative paths for their own depth (`assets/…`, `../assets/…`); run
+  `python3 tools/build_routes.py` after editing `index.html` `<head>`.
+- JavaScript finds the site folder from its own URL (`assets/js/core/base.js`) and builds every link and
+  asset URL from it — so write data paths as `assets/…` (no leading `/`) and route paths as `/about`.
+- `404.html` locates the site folder itself before loading anything (GitHub Pages serves it at any depth).
+- `.nojekyll` tells GitHub Pages to publish the files as they are.
+- File names are case-sensitive on the host: `Fajr.jpg` ≠ `fajr.jpg`.
+
+GitHub Pages: Settings → Pages → Deploy from a branch → `main` / `(root)`.

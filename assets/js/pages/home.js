@@ -2,8 +2,9 @@
    HOME — who Sayf is, then what he has done.
 
      city hero            the name on the clouds (who)
-     #work                selected work: one rounded card per achievement (what)
-     resume / involved    render once real content exists in data/
+     #work                selected work: one rounded card per achievement (what),
+                          then Research and Technical Skills (compact)
+     involved             renders once real content exists in data/
      more about me        one line, then About and Play
 
    WORK in the navigation is this page's #work section: the nav lights HOME
@@ -17,8 +18,7 @@ import { smoothstep, disposer, reducedMotion } from '../core/utils.js';
 import { initReveals } from '../core/reveal.js';
 import { siteEnd, bindSiteEnd } from '../components/site-end.js';
 import { ExperienceExplorer, explorerMarkup } from '../components/experience-explorer.js';
-import { achievementsMarkup, mountAchievements } from '../components/achievement.js';
-import { resumeMarkup } from '../components/resume-viewer.js';
+import { achievementsMarkup, referenceMarkup, mountAchievements } from '../components/achievement.js';
 import { nextStops } from '../components/next-stops.js';
 
 let introPlayed = false; // the full opening plays once per page load
@@ -46,9 +46,9 @@ export default {
       <section id="work" class="work" aria-labelledby="work-title">
         <h2 id="work-title" class="visually-hidden">Selected work</h2>
         <div class="wrap work__list">${achievementsMarkup()}</div>
+        <div class="wrap work__ref">${referenceMarkup()}</div>
       </section>
 
-      ${resumeMarkup()}
       ${explorerMarkup()}
 
       <section class="more" aria-labelledby="more-title">

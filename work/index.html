@@ -5,11 +5,13 @@
   <meta charset="utf-8" />
   <title>Sayf Elkousy</title>
   <meta name="robots" content="noindex" />
-  <link rel="canonical" href="/#work" />
-  <meta http-equiv="refresh" content="0; url=/#work" />
-  <script>location.replace("/#work");</script>
+  <meta http-equiv="refresh" content="0; url=../#work" />
+  <script>
+    // <site>/work, <site>/work/ or <site>/work/index.html → <site>/#work
+    location.replace(location.pathname.replace(/[^/]+\/?(index\.html)?$/, "") + "#work");
+  </script>
 </head>
 <body style="background:#030507;color:#f1f4f6;font-family:ui-monospace,monospace">
-  <p>Moved to <a href="/#work" style="color:#6b93ff">/#work</a>.</p>
+  <p>Moved to <a href="../#work" style="color:#6b93ff">the Work section</a>.</p>
 </body>
 </html>

@@ -20,6 +20,7 @@
 import { routes } from '../data/site.js';
 import { wordmarkLine } from './wordmark.js';
 import { clamp, lerp, finePointer, reducedMotion } from '../core/utils.js';
+import { link } from '../core/base.js';
 
 // Station positions along the line (0–1). Irregular, like a real line map.
 const STOPS = [0, 0.37, 0.69, 1];
@@ -43,7 +44,7 @@ export class Nav {
   render() {
     const stations = routes.map((r, i) => `
       <li class="station" style="--x:${STOPS[i]};--dy:${STOPS[i] > KINK_AT ? DROP : 0}px">
-        <a href="${r.path}" data-i="${i}" data-cursor="ENTER">
+        <a href="${link(r.path)}" data-i="${i}" data-cursor="ENTER">
           <span class="station__mark" aria-hidden="true"></span>
           <span class="station__label">${r.label}</span>
         </a>
@@ -51,7 +52,7 @@ export class Nav {
 
     this.root.innerHTML = `
       <div class="nav-bar">
-        <a class="nav-mark" href="/" aria-label="Sayf Elkousy — home" data-cursor="HOME">${wordmarkLine()}</a>
+        <a class="nav-mark" href="${link('/')}" aria-label="Sayf Elkousy — home" data-cursor="HOME">${wordmarkLine()}</a>
 
         <button class="nav-contact" type="button" aria-expanded="false" aria-controls="site-panel" aria-haspopup="dialog" data-open-sidebar data-cursor="OPEN">
           <span class="nav-contact__pip" aria-hidden="true"></span>

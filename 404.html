@@ -3,31 +3,41 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8" />
+  <script>
+    (function () {
+      var ASSETS = [["icon", "assets/img/favicon.svg"], ["stylesheet", "assets/css/tokens.css"], ["stylesheet", "assets/css/base.css"], ["stylesheet", "assets/css/components.css"], ["stylesheet", "assets/css/nav.css"], ["stylesheet", "assets/css/sidebar.css"], ["stylesheet", "assets/css/transition.css"], ["stylesheet", "assets/css/cursor.css"], ["stylesheet", "assets/css/home.css"], ["stylesheet", "assets/css/work.css"], ["stylesheet", "assets/css/pso.css"], ["stylesheet", "assets/css/about.css"], ["stylesheet", "assets/css/play.css"], ["script", "assets/js/main.js"]];
+      var seg = location.pathname.split("/").filter(Boolean)[0];
+      var tries = (seg ? ["/" + seg + "/"] : []).concat(["/"]);
+      (function next(i) {
+        if (i >= tries.length) return;
+        fetch(tries[i] + "assets/js/core/base.js", { method: "HEAD", cache: "no-store" })
+          .then(function (r) { if (!r.ok) throw 0; boot(tries[i]); })
+          .catch(function () { next(i + 1); });
+      })(0);
+      function boot(root) {
+        var base = document.createElement("base");
+        base.href = root;
+        document.head.insertBefore(base, document.head.firstChild);
+        ASSETS.forEach(function (a) {
+          var el = document.createElement(a[0] === "script" ? "script" : "link");
+          if (a[0] === "script") { el.type = "module"; el.src = a[1]; }
+          else { el.rel = a[0]; el.href = a[1]; if (a[0] === "icon") el.type = "image/svg+xml"; }
+          document.head.appendChild(el);
+        });
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Lost — Sayf Elkousy</title>
   <meta name="description" content="Page not found." />
   <meta name="theme-color" content="#030507" />
   <meta name="color-scheme" content="dark" />
-  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@300..900&family=Instrument+Sans:wdth,wght@75..100,400..700&family=JetBrains+Mono:wght@400;500&family=Reem+Kufi:wght@400..700&family=Caveat:wght@500;600&display=swap" />
 
-  <link rel="stylesheet" href="/assets/css/tokens.css" />
-  <link rel="stylesheet" href="/assets/css/base.css" />
-  <link rel="stylesheet" href="/assets/css/components.css" />
-  <link rel="stylesheet" href="/assets/css/nav.css" />
-  <link rel="stylesheet" href="/assets/css/sidebar.css" />
-  <link rel="stylesheet" href="/assets/css/transition.css" />
-  <link rel="stylesheet" href="/assets/css/cursor.css" />
-  <link rel="stylesheet" href="/assets/css/home.css" />
-  <link rel="stylesheet" href="/assets/css/work.css" />
-  <link rel="stylesheet" href="/assets/css/pso.css" />
-  <link rel="stylesheet" href="/assets/css/about.css" />
-  <link rel="stylesheet" href="/assets/css/play.css" />
 
-  <script type="module" src="/assets/js/main.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -41,7 +51,7 @@
     <noscript>
       <div class="noscript">
         <p class="mono">This site needs JavaScript.</p>
-        <p>Sayf Elkousy. <a href="/#work">Work</a> · <a href="/about">About</a> · <a href="/play">Play</a> · <a href="mailto:sayfelkousy@gmail.com">Email</a></p>
+        <p>Sayf Elkousy. <a href="./#work">Work</a> · <a href="about">About</a> · <a href="play">Play</a> · <a href="mailto:sayfelkousy@gmail.com">Email</a></p>
       </div>
     </noscript>
   </main>

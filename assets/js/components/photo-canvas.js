@@ -13,6 +13,7 @@
 
 import { photos, groups } from '../data/photos.js';
 import { esc, real } from '../core/utils.js';
+import { asset } from '../core/base.js';
 
 /** Photos in page order — also the lightbox order. */
 export const photoOrder = groups.flatMap((g) => photos.filter((p) => p.group === g.id && p.src));
@@ -35,13 +36,13 @@ function details(p) {
 export function shot(p, k = 0) {
   const ratio = p.width && p.height ? `${p.width} / ${p.height}` : '4 / 3';
   const srcset = p.full && p.full !== p.src && p.width
-    ? ` srcset="${esc(p.src)} ${Math.min(1800, p.width)}w, ${esc(p.full)} ${p.width}w" sizes="(max-width: 760px) 100vw, 60vw"`
+    ? ` srcset="${esc(asset(p.src))} ${Math.min(1800, p.width)}w, ${esc(asset(p.full))} ${p.width}w" sizes="(max-width: 760px) 100vw, 60vw"`
     : '';
   return `
     <button type="button" class="shot" style="--r:${TILTS[k % TILTS.length]}deg" data-photo="${photoOrder.indexOf(p)}"
       data-cursor="VIEW" aria-label="${esc(real(p.alt) || 'Photo')} — open larger">
       <span class="shot__img" style="aspect-ratio:${ratio}">
-        <img src="${esc(p.src)}"${srcset} alt="" loading="lazy" decoding="async" width="${p.width || ''}" height="${p.height || ''}">
+        <img src="${esc(asset(p.src))}"${srcset} alt="" loading="lazy" decoding="async" width="${p.width || ''}" height="${p.height || ''}">
       </span>
       ${details(p)}
     </button>`;

@@ -12,6 +12,7 @@
 
 import { routes, site } from '../data/site.js';
 import { esc, reducedMotion } from '../core/utils.js';
+import { link, asset } from '../core/base.js';
 
 export class Sidebar {
   constructor() {
@@ -23,15 +24,15 @@ export class Sidebar {
 
   render() {
     const nav = routes.map((r) => `
-      <li><a href="${r.path}" data-i="${r.index}">
+      <li><a href="${link(r.path)}" data-path="${r.path}" data-i="${r.index}">
         <span class="sb__idx mono">${r.index}</span>
         <span class="sb__label display">${r.label}</span>
       </a></li>`).join('');
 
     const contact = site.contact.filter((c) => c.href).map((c) => {
-      const ext = c.href.startsWith('http');
+      const ext = c.href.startsWith('http') || c.newTab;
       return `
-      <li><a class="sb__contact" href="${esc(c.href)}" ${ext ? 'target="_blank" rel="noopener"' : ''} data-cursor="OPEN">
+      <li><a class="sb__contact" href="${esc(asset(c.href))}" ${ext ? 'target="_blank" rel="noopener"' : ''} data-cursor="OPEN">
         <span class="mono">${esc(c.label)}</span>
         <span class="sb__value">${esc(c.value)}</span>
         <span class="sb__arrow" aria-hidden="true">${ext ? '↗' : '→'}</span>
@@ -95,7 +96,7 @@ export class Sidebar {
   /** @param {string} key  a route path ('/about') or a section of one ('/#work') */
   setActive(key) {
     this.links.forEach((a) => {
-      if (a.getAttribute('href') === key) a.setAttribute('aria-current', 'page');
+      if (a.dataset.path === key) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
     });
   }

@@ -6,6 +6,7 @@
 
 import { photoOrder } from './photo-canvas.js';
 import { esc, disposer, reducedMotion, real } from '../core/utils.js';
+import { asset } from '../core/base.js';
 
 export class PhotoLightbox {
   constructor(root) {
@@ -72,7 +73,7 @@ export class PhotoLightbox {
     const p = photoOrder[this.i];
     const q = (s) => this.el.querySelector(s);
     q('.lb__count').textContent = `${String(this.i + 1).padStart(2, '0')} / ${String(photoOrder.length).padStart(2, '0')}`;
-    q('.lb__img').innerHTML = `<img src="${esc(p.full || p.src)}" alt="${esc(real(p.alt))}">`;
+    q('.lb__img').innerHTML = `<img src="${esc(asset(p.full || p.src))}" alt="${esc(real(p.alt))}">`;
     q('.lb__loc').textContent = real(p.location);
     q('.lb__year').textContent = real(p.year);
     q('.lb__text').textContent = real(p.caption);

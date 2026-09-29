@@ -14,6 +14,7 @@
 import { districts as allDistricts, experiences as allExperiences } from '../data/experiences.js';
 import { esc, disposer, isPlaceholder, real } from '../core/utils.js';
 import { scramble } from '../core/scramble.js';
+import { asset } from '../core/base.js';
 
 // Only entries with a real name and description are shown; the rest wait in the data file.
 const experiences = allExperiences.filter((e) => !isPlaceholder(e.org) && !isPlaceholder(e.desc));
@@ -38,7 +39,7 @@ const meta = (e) => [real(e.role), real(e.year)].filter(Boolean).map(esc).join('
 
 function detail(e, i) {
   const d = dist[e.district];
-  const img = e.image ? `<div class="panel__img"><img src="${esc(e.image)}" alt="${esc(e.org)}" loading="lazy"></div>` : '';
+  const img = e.image ? `<div class="panel__img"><img src="${esc(asset(e.image))}" alt="${esc(e.org)}" loading="lazy"></div>` : '';
   const skills = (e.skills || []).filter((s) => !isPlaceholder(s));
   const related = (e.related || []).concat(experiences.filter((x) => x.related?.includes(e.id)).map((x) => x.id));
   const rel = [...new Set(related)].map((id) => byId[id]).filter(Boolean);

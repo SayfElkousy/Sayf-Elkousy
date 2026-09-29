@@ -2,27 +2,28 @@
    ABOUT — a short personal encyclopedia entry.
 
    One article, read top to bottom: title (English + Arabic), a contents
-   row, an infobox with the portrait, three small sections, and two figures
+   row, Education beside an infobox with the portrait, three small sections, and two figures
    (Thoth, chess) set into the text like plates in a book. Copy lives in
    data/about.js; the drawings in components/illustrations.js.
 
    Desktop: text column (~62ch) + a right margin for infobox and chess.
-   Mobile:  title → portrait → article → figures, one column.
+   Mobile:  title → portrait → education → article → figures, one column.
    ========================================================================== */
 
-import { sections, facts, portrait, thothCaption } from '../data/about.js';
+import { sections, facts, portrait, thothCaption, education } from '../data/about.js';
 import { esc, disposer } from '../core/utils.js';
 import { initReveals } from '../core/reveal.js';
 import { nextStops } from '../components/next-stops.js';
 import { siteEnd, bindSiteEnd } from '../components/site-end.js';
 import { knightSVG, thothSVG } from '../components/illustrations.js';
+import { link, asset } from '../core/base.js';
 
 /** Escape a paragraph, then turn [label](/path) into a site link. */
 const prose = (s) => esc(s).replace(/\[([^\]]+)\]\((\/[^)\s]*)\)/g,
-  (_, label, href) => `<a class="inline" href="${href}">${label}</a>`);
+  (_, label, href) => `<a class="inline" href="${link(href)}">${label}</a>`);
 
 const portraitMarkup = () => portrait.src
-  ? `<img src="${esc(portrait.src)}" alt="${esc(portrait.alt)}" width="800" height="1000" decoding="async">`
+  ? `<img src="${esc(asset(portrait.src))}" alt="${esc(portrait.alt)}" width="800" height="1000" decoding="async">`
   : `<div class="infobox__ph" role="img" aria-label="Professional portrait placeholder">
        <span class="mono">Professional portrait</span>
        <span class="mono muted">Coming soon</span>
@@ -46,8 +47,27 @@ const chessFigure = () => `
     </figcaption>
   </figure>`;
 
+/** Education: the first section, beside the portrait — institution first. */
+function educationSection() {
+  const e = education;
+  return `
+    <section class="wiki__sec wiki__sec--education" id="education" aria-labelledby="education-t">
+      <h2 class="wiki__h" id="education-t"><span class="mono">01</span> Education</h2>
+      <p class="edu__school">${esc(e.school)}</p>
+      <p class="edu__degree">${esc(e.degree)}</p>
+      <p class="edu__when mono">${esc(e.expected)}</p>
+      <dl class="edu__rows">
+        ${e.rows.map(([k, items, note]) => `
+          <div>
+            <dt class="mono">${esc(k)}${note ? `<span class="edu__note">${esc(note)}</span>` : ''}</dt>
+            <dd>${items.map(esc).join('<span aria-hidden="true"> · </span>')}</dd>
+          </div>`).join('')}
+      </dl>
+    </section>`;
+}
+
 function section(s, i) {
-  const n = String(i + 1).padStart(2, '0');
+  const n = String(i + 2).padStart(2, '0'); // 01 is Education
   const criteria = s.criteria ? `
     <ol class="criteria">
       ${s.criteria.map(([name, text], k) => `
@@ -71,7 +91,7 @@ export default {
   id: 'about',
   title: 'About — Sayf Elkousy',
   render() {
-    const toc = sections.map((s, i) => `
+    const toc = [{ id: 'education', title: 'Education' }, ...sections].map((s, i) => `
       <li><a href="#${s.id}"><span class="mono">${String(i + 1).padStart(2, '0')}</span> ${esc(s.title)}</a></li>`).join('');
 
     return `
@@ -97,6 +117,7 @@ export default {
               </dl>
             </aside>
 
+            ${educationSection()}
             ${sections.map(section).join('')}
 
             <aside class="wiki__margin">${chessFigure()}</aside>

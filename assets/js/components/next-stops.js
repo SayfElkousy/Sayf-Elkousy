@@ -4,6 +4,7 @@
    ========================================================================== */
 
 import { routes } from '../data/site.js';
+import { link } from '../core/base.js';
 
 export function nextStops(current) {
   const i = routes.findIndex((r) => r.path === current);
@@ -17,7 +18,7 @@ export function nextStops(current) {
         <ol class="stops">
           ${rest.map((r, k) => `
             <li style="--i:${k}" data-reveal="wipe" data-delay="${k * 90}">
-              <a href="${r.path}" data-cursor="ENTER">
+              <a href="${link(r.path)}" data-cursor="ENTER">
                 <span class="stops__idx mono">${r.index}</span>
                 <span class="stops__label display">${r.label}</span>
                 <span class="stops__mood mono">${r.blurb} <span aria-hidden="true">→</span></span>

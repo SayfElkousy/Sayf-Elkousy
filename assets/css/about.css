@@ -52,7 +52,29 @@
 }
 .infobox { grid-column: 2; grid-row: 1 / span 2; }
 .wiki__sec { grid-column: 1; }
-.wiki__margin { grid-column: 2; grid-row: 3; align-self: center; }
+.wiki__margin { grid-column: 2; grid-row: 4; align-self: center; } /* beside Outside of Academics */
+
+/* ---------- Education: first section, beside the portrait ---------- */
+.edu__school {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.4rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.wiki__sec .edu__degree { margin-top: 0.5rem; color: var(--ink); line-height: 1.45; }
+.wiki__sec .edu__when { margin-top: 0.25rem; color: var(--blue-text); }
+.edu__rows { margin-top: 1.1rem; border-top: 1px solid var(--line); }
+.edu__rows div {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding-block: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+.edu__rows dt { color: var(--ink-3); padding-top: 0.2em; line-height: 1.5; }
+.edu__note { display: block; color: var(--ink-3); opacity: 0.7; text-transform: none; letter-spacing: 0.04em; }
+.edu__rows dd { margin: 0; color: rgba(241, 244, 246, 0.86); font-size: var(--fs-small); line-height: 1.65; }
 
 /* ---------- Sections ---------- */
 .wiki__sec { scroll-margin-top: calc(var(--nav-h) + 1.5rem); outline: none; }
@@ -194,6 +216,7 @@
   .wiki__fig--chess .wiki__fig-art { width: 64px; }
 }
 @media (max-width: 560px) {
+  .edu__rows div { grid-template-columns: minmax(0, 1fr); gap: 0.25rem; }
   .criteria li { grid-template-columns: 2rem minmax(0, 1fr); }
   .criteria__text { grid-column: 2; }
   .wiki__fig--thoth { grid-template-columns: 96px minmax(0, 1fr); gap: 1rem; }

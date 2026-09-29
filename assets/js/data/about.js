@@ -8,14 +8,26 @@
    that exist.
    ========================================================================== */
 
-// ---- Portrait (infobox, top right of the article) ----
-// To add the professional photo: save it as /assets/photos/portrait.jpg
+// ---- Portrait (infobox, top right, beside Education) ----
+// To add the professional photo: save it as /assets/photos/professional-portrait.jpg
 // (portrait orientation, ~4:5, ~1200px tall is plenty) and set src below.
 // While src is null, a designed "Professional portrait — coming soon"
 // placeholder is shown in the same spot.
 export const portrait = {
-  src: null, // → '/assets/photos/portrait.jpg'
+  src: null, // → 'assets/photos/professional-portrait.jpg'
   alt: 'Sayf Elkousy',
+};
+
+// ---- Education (top of the article, beside the portrait) — from the résumé ----
+export const education = {
+  school: 'Duke University',
+  degree: 'Double Major in Computer Science and Biology',
+  expected: 'Expected May 2029',
+  rows: [
+    // [label, items, optional small note]
+    ['Relevant coursework', ['AP Computer Science Principles', 'Multivariable Calculus', 'AP Calculus BC', 'AP Biology', 'AP Physics', 'AP Chemistry'], 'High school'],
+    ['Campus involvement', ['Catalyst Tech Society', 'Duke Business Behind Health', 'Duke Investment Club — Trainee', 'Duke Arab Student Club']],
+  ],
 };
 
 // ---- Infobox facts (all from the article below) ----

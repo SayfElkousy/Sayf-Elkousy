@@ -15,6 +15,11 @@ const pages = {
 };
 const notFound = () => import('./pages/not-found.js');
 
+// Pin <head> URLs (stylesheets, icon) to absolute: they're written relative to
+// the page's folder, and the router tidies the address bar (/about/ → /about),
+// after which the browser would re-resolve them against the wrong folder.
+document.querySelectorAll('head link[href]').forEach((el) => el.setAttribute('href', el.href));
+
 initCursor();
 const nav = new Nav(document.getElementById('site-nav'));
 const sidebar = new Sidebar();
@@ -46,8 +51,11 @@ const router = new Router({
   },
 });
 
-router.start().then(() => {
-  document.documentElement.classList.add('is-ready');
+// Never leave the page hidden: the nav (and the Home fade-in) wait for
+// .is-ready, so set it even if the first render fails.
+const ready = () => document.documentElement.classList.add('is-ready');
+setTimeout(ready, 4000);
+router.start().catch((e) => { console.error(e); }).finally(ready).then(() => {
   // Warm the other pages so the transition midpoint never waits on the network.
   const warm = () => Object.values(pages).forEach((load) => load().catch(() => {}));
   if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 3000 });

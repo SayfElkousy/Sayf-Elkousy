@@ -196,18 +196,20 @@
       log(D().querySelectorAll('.ach').length >= 1 && getComputedStyle(D().querySelector('.ach')).borderTopLeftRadius !== '0px', 'achievement is a rounded card');
       // Work cards: one shared structure, PSO first, photo slots, research + skills after
       const cards = [...D().querySelectorAll('#work .ach')];
-      log(cards.map((c) => c.id).join(',') === 'pso,soccer,sports-science,fajr,eas,amaanah', `six cards in order (${cards.map((c) => c.id)})`);
+      log(cards.map((c) => c.id).join(',') === 'pso,fajr,soccer,eas,amaanah,sports-science', `six cards in order (${cards.map((c) => c.id)})`);
       const cs = cards.map((c) => getComputedStyle(c));
       log(new Set(cs.map((c) => c.borderTopLeftRadius + '|' + c.borderTopColor)).size === 1, 'all cards share radius + border');
-      log(new Set(cards.map((c) => Math.round(c.getBoundingClientRect().height))).size === 1, `all cards share one height (${cards.map((c) => Math.round(c.getBoundingClientRect().height))})`);
-      log(!!D().querySelector('#pso canvas.pso__canvas') && !D().querySelector('#pso .ach__img'), 'PSO keeps its interactive visual');
-      const imgs = (id) => [...D().querySelectorAll(`#${id} .ach__media img`)].map((i) => app(i.getAttribute('src')));
+      log(cards.slice(1).every((c) => c.getBoundingClientRect().height < cards[0].getBoundingClientRect().height), `photo/text cards are more compact than PSO (${cards.map((c) => Math.round(c.getBoundingClientRect().height))})`);
+      log(!!D().querySelector('#pso canvas.pso__canvas') && !D().querySelector('#pso img'), 'PSO keeps its interactive visual');
+      const imgs = (id) => [...D().querySelectorAll(`#${id} .ach__photos img`)].map((i) => app(i.getAttribute('src')));
       log(imgs('soccer').join() === '/assets/photos/captain.jpg', `soccer photo (${imgs('soccer')})`);
       log(imgs('sports-science').join() === '/assets/photos/sportsscience.jpg,/assets/photos/science.jpg', `sports science photos (${imgs('sports-science')})`);
       log(imgs('fajr').join() === '/assets/photos/Fajr.jpg,/assets/photos/fajrsurgicalcare.jpg', `fajr photos (${imgs('fajr')})`);
       log(imgs('eas').join() === '/assets/photos/EAS.jpg,/assets/photos/Dabke.jpg', `eas photos (${imgs('eas')})`);
-      log(!!D().querySelector('#amaanah .ach__media--empty') && !imgs('amaanah').length, 'AMAANAH shows the placeholder panel');
-      const all = [...D().querySelectorAll('#work .ach__media img')];
+      log(D().getElementById('amaanah').classList.contains('ach--text') && !D().querySelector('#amaanah img, #amaanah .ach__photos'), 'AMAANAH is text-only');
+      log(D().querySelector('#fajr .ach__fig:first-child figcaption')?.textContent === 'A photo of me and one of our guest speakers, NFL player Azeez Al-Shaiir, at the FajrGlobal fundraising event.', 'Fajr caption sits under Fajr.jpg');
+      log(!D().querySelector('#work .ach__photos figure figure, #work .ach__photos img + img'), 'no image nested in another');
+      const all = [...D().querySelectorAll('#work .ach__photos img')];
       all.forEach((i) => { i.loading = 'eager'; });
       await sleep(2500);
       log(all.every((i) => i.complete && i.naturalWidth > 0), `all ${all.length} work photos load (${all.filter((i) => !(i.complete && i.naturalWidth)).map((i) => i.currentSrc).join(' ') || 'ok'})`);

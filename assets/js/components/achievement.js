@@ -1,23 +1,15 @@
 /* ==========================================================================
    Achievement — the one card every Work activity uses.
 
-   Desktop (≈55 / 45, sides alternate from card to card):
-       ╭────────────────────────────────┬──────────────────────────╮
-       │ VISUAL                         │ SELECTED WORK / 02       │
-       │  PSO: the interactive cube     │ Title / role             │
-       │  others: their photographs     │ Organization             │
-       │                                │ Dates · Location         │
-       │                                │ One strong paragraph     │
-       ╰────────────────────────────────┴──────────────────────────╯
+   Three variants of one card (same border, radius, type, label → title →
+   organization → meta → description):
+     ach--interactive  PSO: the interactive visual beside the text (≈55 / 45)
+     ach--photos       text, with one or two small photos beside it
+                       (side by side, never one inside another; optional
+                       caption directly under a photo)
+     ach--text         no photos: heading block and description in two columns
    Mobile (every card, same order): label → title → organization → meta →
-   visual → description.
-
-   Photos (data/work.js → images[]), one standard treatment:
-     0 → a quiet "Photo coming soon" panel
-     1 → the photo fills the visual side (object-fit: cover)
-     2 → the first fills it; the second sits uncropped in a pane docked into
-         a corner (insetCorner: 'bl' | 'tr'), separated by a dark rule
-   The visual side has fixed proportions, so photos never resize a card.
+   visual / photos → description.
    ========================================================================== */
 
 import { achievements, research, skills } from '../data/work.js';
@@ -43,35 +35,28 @@ function img(im, { cls, sizes }) {
   return `<img class="${cls}" src="${esc(asset(im.src))}" ${set} alt="${esc(real(im.alt))}" width="${im.w || ''}" height="${im.h || ''}" loading="lazy" decoding="async"${pos}>`;
 }
 
-function media(a, n) {
-  const list = photos(a);
-  if (!list.length) {
-    return `
-      <div class="ach__visual ach__media ach__media--empty">
-        <p class="ach__empty mono" aria-hidden="true">
-          <span>Documentation / ${n}</span>
-          <span class="ach__empty-v">Photo coming soon</span>
-        </p>
-      </div>`;
-  }
-  const [main, second] = list;
-  const corner = a.insetCorner === 'tr' ? 'tr' : 'bl';
+/** Photo shape: its real proportions, clamped to 3:4 … 3:2 so rows stay tidy. */
+const ratio = (im) => Math.min(1.5, Math.max(0.75, (im.w && im.h) ? im.w / im.h : 1)).toFixed(3);
+
+/** Up to two small photos, side by side — each a plain image, optionally captioned. */
+function media(a) {
+  const list = photos(a).slice(0, 2);
+  if (!list.length) return '';
   return `
-    <div class="ach__visual ach__media${second ? ` ach__media--two ach__media--${corner}` : ''}">
-      ${img(main, { cls: 'ach__img', sizes: '(max-width: 900px) 100vw, 55vw' })}
-      ${second ? `<figure class="ach__inset" style="aspect-ratio:${second.w || 4} / ${second.h || 5}">
-        ${img(second, { cls: 'ach__inset-img', sizes: '(max-width: 900px) 40vw, 20vw' })}
-      </figure>` : ''}
+    <div class="ach__photos">
+      ${list.map((im) => `
+        <figure class="ach__fig" style="--r:${ratio(im)}">
+          ${img(im, { cls: 'ach__fig-img', sizes: '(max-width: 900px) 50vw, 360px' })}
+          ${real(im.caption) ? `<figcaption class="ach__cap">${esc(im.caption)}</figcaption>` : ''}
+        </figure>`).join('')}
     </div>`;
 }
 
-/** The interactive visual (PSO), plus an optional small photo pane over it. */
+/** The interactive visual (PSO). */
 function interactive(a, visual) {
-  const [im] = photos(a);
   return `
     <div class="ach__visual" data-visual="${esc(a.visual)}">
       ${visual.markup(a)}
-      ${im ? `<figure class="ach__photo">${img(im, { cls: '', sizes: '20vw' })}</figure>` : ''}
     </div>`;
 }
 
@@ -85,11 +70,12 @@ export function achievementMarkup(a, i) {
     ? `<a class="btn ach__link" href="${esc(a.link.href)}" target="_blank" rel="noopener" data-cursor="OPEN">${esc(a.link.label)} <span class="arrow" aria-hidden="true">↗</span></a>`
     : '';
   const id = esc(a.id || `work-${n}`);
-  const cls = ['ach', i % 2 ? 'ach--flip' : ''].filter(Boolean).join(' ');
+  const kind = visual ? 'interactive' : photos(a).length ? 'photos' : 'text';
+  const cls = `ach ach--${kind}`;
 
   return `
     <article class="${cls}" id="${id}" aria-labelledby="${id}-title" data-reveal="rise">
-      ${visual ? interactive(a, visual) : media(a, n)}
+      ${visual ? interactive(a, visual) : media(a)}
       <div class="ach__info">
         <p class="ach__label mono">${esc(label)}</p>
         <h3 class="ach__title" id="${id}-title">${esc(a.title)}</h3>

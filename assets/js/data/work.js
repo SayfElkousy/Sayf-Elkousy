@@ -15,20 +15,18 @@
      description   one strong paragraph
      visual        an interactive visual (only 'pso'); otherwise the card
                    shows its photographs
-     images        0, 1 or 2 photos, first = main:
+     images        0, 1 or 2 photos, shown small beside the text (never full-bleed):
                      src     the original file in /assets/photos/ (exact name — case matters)
                      web     optional base name of the downsized copies in
                              /assets/photos/web/ (<web>-1600.jpg, <web>-800.jpg);
                              the browser picks the lightest one that looks sharp
-                     w, h    the original's pixel size (the second photo keeps its shape)
+                     w, h    the original's pixel size (sets the photo's shape,
+                             clamped between 3:4 portrait and 3:2 landscape)
                      alt     what's in the photo
-                     pos     optional crop focus for the main photo, e.g. '62% 35%'
-                   0 photos → a quiet "Photo coming soon" panel
-                   1 photo  → it fills the visual side
-                   2 photos → the first fills it; the second sits in a pane
-                              docked into a corner, uncropped
-     insetCorner   optional: 'bl' (default) or 'tr' — which corner the second
-                   photo's pane docks into (move it off faces)
+                     pos     optional crop focus, e.g. '62% 35%'
+                     caption optional line shown directly beneath that photo
+                   0 photos → a text-only card
+   Cards appear in the order of this array.
    ========================================================================== */
 
 export const achievements = [
@@ -39,7 +37,22 @@ export const achievements = [
     tools: ['Python', 'NumPy'],
     description: 'Built a Particle Swarm Optimization simulation that models 100+ particles converging on a solution, demonstrating PSO as a heuristic, derivative-free approach to quantum engineering problems not suited to calculus-based optimization.',
     visual: 'pso',
-    images: [], // optional: one photo here appears as a small pane over the cube
+    images: [], // PSO shows its interactive visual instead of photos
+  },
+  {
+    id: 'fajr',
+    title: 'Volunteer & Community Organizer',
+    organization: 'Fajr Scientific',
+    dates: 'September 2023 – August 2026',
+    location: 'Houston, TX',
+    description: 'Supported two medical missions that enabled 300+ surgeries by organizing patient data, surgical schedules, and equipment. I also helped raise $2M toward rebuilding infrastructure in war-affected regions and supported major fundraising events and medical-mission logistics.',
+    images: [
+      { src: 'assets/photos/Fajr.jpg', web: 'fajr', w: 1086, h: 1448, pos: '50% 22%',
+        caption: 'A photo of me and one of our guest speakers, NFL player Azeez Al-Shaiir, at the FajrGlobal fundraising event.',
+        alt: 'Two people standing beside a FAJR Global banner at a fundraising event.' },
+      { src: 'assets/photos/fajrsurgicalcare.jpg', w: 447, h: 447,
+        alt: 'A clinician and a family member walking beside a young patient on a hospital stretcher.' },
+    ],
   },
   {
     id: 'soccer',
@@ -51,35 +64,6 @@ export const achievements = [
     images: [
       { src: 'assets/photos/captain.jpg', web: 'captain', w: 5204, h: 3469, pos: '66% 35%',
         alt: 'Three Bellaire players in red kits on the field at night; number 10 wears the captain’s armband.' },
-    ],
-  },
-  {
-    id: 'sports-science',
-    title: 'Founder & President',
-    organization: 'Sports Science Club',
-    dates: 'September 2024 – June 2026',
-    location: 'Houston, TX',
-    description: 'Founded and grew a 60-member Sports Science Club focused on the intersection of athletics, training, and science. I recruited professional weightlifters and trainers to lead lectures and hands-on sessions for 40+ students, and helped raise $300+ for the Challenged Athletes Foundation through a pickleball tournament and social events.',
-    images: [
-      { src: 'assets/photos/sportsscience.jpg', web: 'sportsscience', w: 6449, h: 4299, pos: '50% 62%',
-        alt: 'Sports Science Club members lined up arm in arm on an outdoor court.' },
-      { src: 'assets/photos/science.jpg', web: 'science', w: 1400, h: 1692,
-        alt: 'Students at desks in a classroom during a club session, with a presentation on the screen.' },
-    ],
-    insetCorner: 'tr', // the team fills the lower half; the pane sits over the sky
-  },
-  {
-    id: 'fajr',
-    title: 'Volunteer & Community Organizer',
-    organization: 'Fajr Scientific',
-    dates: 'September 2023 – August 2026',
-    location: 'Houston, TX',
-    description: 'Supported two medical missions that enabled 300+ surgeries by organizing patient data, surgical schedules, and equipment. I also helped raise $2M toward rebuilding infrastructure in war-affected regions and supported major fundraising events and medical-mission logistics.',
-    images: [
-      { src: 'assets/photos/Fajr.jpg', web: 'fajr', w: 1086, h: 1448, pos: '50% 22%',
-        alt: 'Two people standing beside a FAJR Global banner at a fundraising event.' },
-      { src: 'assets/photos/fajrsurgicalcare.jpg', w: 447, h: 447,
-        alt: 'A clinician and a family member walking beside a young patient on a hospital stretcher.' },
     ],
   },
   {
@@ -103,7 +87,21 @@ export const achievements = [
     dates: 'October 2023 – August 2026',
     location: 'Houston, TX',
     description: 'Helped provide free soccer instruction and equipment to 100+ students at low-income schools and co-led a free clinic for 30+ children at the Refugee Day Festival. As an assistant coach for AMAANAH’s 40+ player refugee men’s team, I helped run practices as the team earned promotion to a higher league.',
-    images: [], // add a photo: { src: 'assets/photos/amaanah.jpg', w: …, h: …, alt: '…' }
+    images: [], // text-only card by design
+  },
+  {
+    id: 'sports-science',
+    title: 'Founder & President',
+    organization: 'Sports Science Club',
+    dates: 'September 2024 – June 2026',
+    location: 'Houston, TX',
+    description: 'Founded and grew a 60-member Sports Science Club focused on the intersection of athletics, training, and science. I recruited professional weightlifters and trainers to lead lectures and hands-on sessions for 40+ students, and helped raise $300+ for the Challenged Athletes Foundation through a pickleball tournament and social events.',
+    images: [
+      { src: 'assets/photos/sportsscience.jpg', web: 'sportsscience', w: 6449, h: 4299, pos: '50% 62%',
+        alt: 'Sports Science Club members lined up arm in arm on an outdoor court.' },
+      { src: 'assets/photos/science.jpg', web: 'science', w: 1400, h: 1692,
+        alt: 'Students at desks in a classroom during a club session, with a presentation on the screen.' },
+    ],
   },
 ];
 
